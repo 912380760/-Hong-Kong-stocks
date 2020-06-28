@@ -75,12 +75,14 @@ class CreateBroker {
         this.打新记录.forEach((ele, index) => {
             if(data.name === ele.name) {
                 let {中签定价, 中签手数} = data;
-                // 结算中签费
-                this.余额 -= ((中签手数 * 中签定价 * this.中签费).toFixed(2) - 0);
-
                 this.打新记录[index].中签手数 = 中签手数;
                 this.打新记录[index].中签定价 = 中签定价;
                 this.打新记录[index].资金占用 = (中签手数 * 中签定价 * ele.每手股数).toFixed(2) - 0;
+                this.打新记录[index].中签费用 = (中签手数 * 中签定价 * ele.每手股数 * this.中签费).toFixed(2) - 0;
+
+                // 结算中签费
+                this.余额 -= (中签手数 * 中签定价 * ele.每手股数 * this.中签费);
+                this.余额 = this.余额.toFixed(2) - 0;
             }
         })
 
@@ -97,28 +99,41 @@ class CreateBroker {
                     出售价格,
                     出售手数,
                     出售日期,
-                    每股手数: ele.每股手数,
+                    每手股数: ele.每手股数,
                 });
-                // this.余额 -= 出售费用;
+                this.余额 -= 出售费用;
 
                 let 出售记录对象 = {
                     出售价格,
                     出售手数,
                     出售日期,
+                    出售费用,
                 }
                 if (!this.打新记录[index].出售记录) {
                     this.打新记录[index].出售记录 = [];
                 }
+                let {中签定价, 每手股数} = ele;
+                let {中签费用, 中签手数, 打新费用} = this.打新记录[index];
+                let 利润 = (出售价格 - 中签定价) * 出售手数 * 每手股数;
                 this.打新记录[index].出售记录.push(出售记录对象);
                 if (this.打新记录[index].股票盈利 || this.打新记录[index].股票盈利 === 0) {
-                    this.打新记录[index].股票盈利 += (((出售价格 - ele.中签定价) * 出售手数 * ele.每手股数).toFixed(2) - 0);
+                    this.打新记录[index].股票盈利 += (利润.toFixed(2) - 0);
+                    this.打新记录[index].已出售手数 += 出售手数;
                 } else {
-                    this.打新记录[index].股票盈利 = ((出售价格 - ele.中签定价) * 出售手数 * ele.每手股数).toFixed(2) - 0;
+                    this.打新记录[index].股票盈利 = 利润.toFixed(2) - 0;
+                    this.打新记录[index].已出售手数 = 出售手数;
                 }
-                this.打新记录[index].资金占用 -= (出售手数 * ele.中签定价 * ele.每手股数).toFixed(2) - 0;
-                this.打新记录[index].净利润 = (this.打新记录[index].股票盈利 - this.打新记录[index].打新费用 - 出售费用).toFixed(2) - 0;
 
-                this.余额 += this.打新记录[index].净利润;
+                let 已出售总费用 = 0;
+                this.打新记录[index].出售记录.forEach((ele) => {
+                    已出售总费用 += ele.出售费用;
+                });
+                this.打新记录[index].资金占用 -= (出售手数 * 中签定价 * 每手股数).toFixed(2) - 0;
+                this.打新记录[index].净利润 = (
+                    this.打新记录[index].股票盈利 - (打新费用 + 中签费用) / 中签手数 * this.打新记录[index].已出售手数
+                    - 已出售总费用
+                ).toFixed(2) - 0;
+                this.余额 += 利润;
                 this.余额 = this.余额.toFixed(2) - 0;
             }
         })
