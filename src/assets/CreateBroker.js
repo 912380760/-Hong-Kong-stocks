@@ -77,12 +77,18 @@ class CreateBroker {
                 let {中签定价, 中签手数} = data;
                 this.打新记录[index].中签手数 = 中签手数;
                 this.打新记录[index].中签定价 = 中签定价;
-                this.打新记录[index].资金占用 = (中签手数 * 中签定价 * ele.每手股数).toFixed(2) - 0;
-                this.打新记录[index].中签费用 = (中签手数 * 中签定价 * ele.每手股数 * this.中签费).toFixed(2) - 0;
+                if(中签手数 > 0) {
+                    this.打新记录[index].资金占用 = (中签手数 * 中签定价 * ele.每手股数).toFixed(2) - 0;
+                    this.打新记录[index].中签费用 = (中签手数 * 中签定价 * ele.每手股数 * this.中签费).toFixed(2) - 0;
 
-                // 结算中签费
-                this.余额 -= (中签手数 * 中签定价 * ele.每手股数 * this.中签费);
-                this.余额 = this.余额.toFixed(2) - 0;
+                    // 结算中签费
+                    this.余额 -= (中签手数 * 中签定价 * ele.每手股数 * this.中签费);
+                    this.余额 = this.余额.toFixed(2) - 0;
+                } else {
+                    this.打新记录[index].资金占用 = 0;
+                    this.打新记录[index].中签费用 = 0;
+                    this.打新记录[index].净利润 = 0 - this.打新记录[index].打新费用;
+                }
             }
         })
 
