@@ -298,6 +298,7 @@ export default {
                 }
             });
         }
+
         let 收益日期 = [], 收益利润 = [], 收益数组对象 = [], 总收益 = 0;
         // 排序
         for (const key in 收益对象) {
@@ -306,6 +307,8 @@ export default {
                 利润: 收益对象[key],
             })
         }
+        // 冒泡排序
+        bubbleSort(收益数组对象);
         收益数组对象.forEach((ele) => {
             收益日期.push(ele.日期);
             收益利润.push((总收益 += ele.利润).toFixed(2) - 0);
@@ -315,7 +318,6 @@ export default {
 
         // 个股收益 = 已公布并且已出售的个股收益
         let 个股收益对象 = {};
-        console.log(股票对象集合)
         for (const key in 股票对象集合) {
             for (const brokerKey in this.券商对象) {
                 this.券商对象[brokerKey].打新记录.forEach((ele) => {
