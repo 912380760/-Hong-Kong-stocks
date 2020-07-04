@@ -1,6 +1,5 @@
 <template>
     <div class="hello" style="margin: 0 10px;">
-<!--        <div id="main1" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main2" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main3" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main4" style="width: 1900px;height:400px;"></div>-->
@@ -19,10 +18,10 @@
         </el-table>
 
         <h3>历史收益曲线</h3>
-        <div id="main" style="width: 1900px;height:400px;"></div>
+        <div id="main" style="width: 100%;height:400px;"></div>
 
-        <h3>每只股票收益</h3>
-        <div id="main1" style="width: 1900px;height:400px;"></div>
+        <h3>个股收益</h3>
+        <div id="main1" style="width: 100%;height:400px;"></div>
     </div>
 </template>
 
@@ -177,7 +176,7 @@ export default {
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                        type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
+                        type: 'shadow',        // 默认为直线，可选为：'line' | 'shadow'
                     }
                 },
                 grid: {
@@ -208,6 +207,44 @@ export default {
                         data: series,
                     }
                 ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        },
+
+        // 创建柱状图
+        createChart2(domId, xAxis, series) {
+            // 基于准备好的dom，初始化echarts实例
+            const myChart = echarts.init(document.getElementById(domId));
+            // echarts配置
+            const option = {
+                color: ['#3398DB'],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow',        // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxis,
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    name: '收益',
+                    data: series,
+                    barWidth: '60%',
+                    type: 'bar'
+                }]
             };
 
             // 使用刚指定的配置项和数据显示图表。
@@ -248,7 +285,7 @@ export default {
         }
         console.log(this.tableData);
 
-        // 收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
+        // 历史收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
         let 收益对象 = {};
         for (const brokerKey in this.券商对象) {
             this.券商对象[brokerKey].打新记录.forEach((ele) => {
@@ -273,8 +310,35 @@ export default {
             收益日期.push(ele.日期);
             收益利润.push((总收益 += ele.利润).toFixed(2) - 0);
         });
-        this.createChart('main', 收益日期, 收益利润)
+        this.createChart('main', 收益日期, 收益利润, 'line', '收益');
         console.log(收益数组对象);
+
+        // 个股收益 = 已公布并且已出售的个股收益
+        let 个股收益对象 = {};
+        console.log(股票对象集合)
+        for (const key in 股票对象集合) {
+            for (const brokerKey in this.券商对象) {
+                this.券商对象[brokerKey].打新记录.forEach((ele) => {
+                    if (ele.name === key && ele.资金占用 === 0) {
+                        if(!个股收益对象[key]) {
+                            个股收益对象[key] = ele.净利润;
+                        } else {
+                            个股收益对象[key] += ele.净利润;
+                        }
+                    }
+                })
+            }
+        };
+        // 按股票上市时间排序
+        let 股票名 = [], 股票收益 = [];
+        for (const key in 股票对象集合) {
+            if(个股收益对象[key]) {
+                股票名.push(key);
+                股票收益.push((个股收益对象[key]).toFixed(2) - 0)
+            }
+        };
+        this.createChart2('main1', 股票名, 股票收益);
+        console.log(个股收益对象);
 
         // let index = -1;
         // for (const key in 配售对象) {
