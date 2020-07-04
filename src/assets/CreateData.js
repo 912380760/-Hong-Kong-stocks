@@ -1,12 +1,13 @@
 // 处理配售信息Class
 class CreateData {
     constructor(data) {
-        let {name, 股价, 总股数, 公开发售配额, 公开发售超购倍数} = data;
+        let {name, 股价, 总股数, 公开发售配额, 公开发售超购倍数, 国际配售倍数} = data;
         this.name = name;
         this.股价 = 股价;
         this.总股数 = 总股数;
         this.公开发售配额 = 公开发售配额;
         this.公开发售超购倍数 = 公开发售超购倍数;
+        this.国际配售倍数 = 国际配售倍数;
 
         let [甲组, 乙组, 甲组人数, 乙组人数, 每手股数] = this.中签数据格式化(data);
         this.甲组 = 甲组;

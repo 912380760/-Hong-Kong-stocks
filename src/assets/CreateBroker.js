@@ -37,7 +37,7 @@ class CreateBroker {
     }
 
     添加港股打新记录(data) {
-        let { name, 打新类型, 打新手数, 一手金额, 融资利率, 融资倍数, 每手股数, 记息天数, 打新日期 } = data;
+        let { name, 打新类型, 打新手数, 一手金额, 融资利率, 融资倍数, 每手股数, 记息天数, 打新日期, 上市日期 } = data;
         if (!融资倍数) {
             融资倍数 = 0;
         }
@@ -62,6 +62,7 @@ class CreateBroker {
             打新费用,
             资金占用,
             总认购金额: (打新手数 * 一手金额).toFixed(2) - 0,
+            上市日期,
         });
         // 结算打新费用
         this.余额 -= 打新费用;
@@ -87,8 +88,9 @@ class CreateBroker {
                 } else {
                     this.打新记录[index].资金占用 = 0;
                     this.打新记录[index].中签费用 = 0;
-                    this.打新记录[index].净利润 = 0 - this.打新记录[index].打新费用;
+                    this.打新记录[index].资金解放日 = this.打新记录[index].上市日期;
                 }
+                this.打新记录[index].净利润 = 0 - this.打新记录[index].打新费用;
             }
         })
 
@@ -139,6 +141,11 @@ class CreateBroker {
                     this.打新记录[index].股票盈利 - (打新费用 + 中签费用) / 中签手数 * this.打新记录[index].已出售手数
                     - 已出售总费用
                 ).toFixed(2) - 0;
+
+                if(this.打新记录[index].资金占用 === 0) {
+                    this.打新记录[index].资金解放日 = 出售日期;
+                }
+
                 this.余额 += 利润;
                 this.余额 = this.余额.toFixed(2) - 0;
             }

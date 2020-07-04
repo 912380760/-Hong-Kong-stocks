@@ -1,16 +1,28 @@
 <template>
-    <div class="hello">
-<!--        <div id="main0" style="width: 1900px;height:400px;"></div>-->
+    <div class="hello" style="margin: 0 10px;">
 <!--        <div id="main1" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main2" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main3" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main4" style="width: 1900px;height:400px;"></div>-->
 <!--        <div id="main5" style="width: 1900px;height:400px;"></div>-->
-
-        <el-table :data="tableData" style="width: 100%" stripe border height="500px">
-            <el-table-column prop="股票名称/券商" label="股票/券商" width="120" fixed></el-table-column>
-            <el-table-column v-for="i in tableKeyList" :key="i" :prop="i" :label="i" width="145"></el-table-column>
+        <h3>申购记录</h3>
+        <el-table :data="tableData" style="width: 100%;" border height="750px">
+            <el-table-column prop="股票名称/券商" label="股票/券商" width="130" fixed></el-table-column>
+            <el-table-column v-for="i in tableKeyList" :key="i" :prop="i" :label="i" width="110">
+                <template slot-scope="scope">
+                    <el-tag size="medium" v-if="scope.row[i].打新手数">{{ scope.row[i].打新手数 }}</el-tag>
+                    <el-tag size="medium" type="info" v-else>未申购</el-tag>
+                    <div style="height: 10px;" v-if="scope.row[i].中签手数"></div>
+                    <el-tag size="medium" type="success" v-if="scope.row[i].中签手数">{{ scope.row[i].中签手数 }}</el-tag>
+                </template>
+            </el-table-column>
         </el-table>
+
+        <h3>历史收益曲线</h3>
+        <div id="main" style="width: 1900px;height:400px;"></div>
+
+        <h3>每只股票收益</h3>
+        <div id="main1" style="width: 1900px;height:400px;"></div>
     </div>
 </template>
 
@@ -58,20 +70,20 @@ console.log(券商对象)
 // console.log(配售对象.建业新生活.甲组总申购金额 + 配售对象.沛佳医疗.甲组总申购金额)
 // console.log(配售对象.网易.甲组总申购金额)
 // console.log(配售对象.京东.甲组总申购金额)
-console.log(配售对象.海吉亚医疗.甲组总申购金额 + 配售对象.康基医疗.甲组总申购金额)
+// console.log(配售对象.海吉亚医疗.甲组总申购金额 + 配售对象.康基医疗.甲组总申购金额)
 
 let num0 = 0;
 for (const key in 券商对象) {
     let ele = 券商对象[key];
     num0 += ele.余额;
 }
-console.log(num0)
+console.log('余额: ' + num0)
 
 
 let 海普瑞 = 66030 * 20.6 * 500 / 0.097,
     弘阳服务 = 20000 * 4.3 * 1000 / 0.0756;
 let 预估甲组总申购金额 = (配售对象.海吉亚医疗.甲组总申购金额 + 配售对象.康基医疗.甲组总申购金额) * 1.3 - 海普瑞 - 弘阳服务;
-console.log(预估甲组总申购金额);
+// console.log(预估甲组总申购金额);
 
 let 股票发售信息 = {
     欧康维视生物: {
@@ -120,6 +132,27 @@ let 股票发售信息 = {
 // }
 // console.log(arr)
 
+// 冒泡排序
+function bubbleSort (arr) {
+    var max = arr.length - 1;
+    for (var j = 0; j < max; j++) {
+        // 声明一个变量，作为标志位
+        var done = true;
+        for (var i = 0; i < max - j; i++) {
+            if (new Date(arr[i].日期) > new Date(arr[i + 1].日期)) {
+                var temp = arr[i];
+                arr[i] = arr[i + 1];
+                arr[i + 1] = temp;
+                done = false;
+            }
+        }
+        if (done) {
+            break;
+        }
+    }
+    return arr;
+}
+
 export default {
     name: 'HelloWorld',
     props: {
@@ -135,7 +168,7 @@ export default {
     },
     methods: {
         // 创建折线图
-        createChart(domId, data) {
+        createChart(domId, xAxis, series) {
             // 基于准备好的dom，初始化echarts实例
             const myChart = echarts.init(document.getElementById(domId));
             // echarts配置
@@ -144,7 +177,7 @@ export default {
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                        type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
                     }
                 },
                 grid: {
@@ -156,7 +189,7 @@ export default {
                 xAxis: [
                     {
                         type: 'category',
-                        data: data.甲组总中签率(),
+                        data: xAxis,
                         axisTick: {
                             alignWithLabel: true
                         }
@@ -169,10 +202,10 @@ export default {
                 ],
                 series: [
                     {
-                        name: '总中签率',
+                        name: '收益',
                         type: 'line',
                         barWidth: '60%',
-                        data: data.甲组中签手数(),
+                        data: series,
                     }
                 ]
             };
@@ -182,7 +215,7 @@ export default {
         },
     },
     mounted() {
-        // 添加申购内容
+        // 申购中签记录
         for (const key in 股票对象集合) {
             let obj ={
                 '股票名称/券商': key,
@@ -190,29 +223,58 @@ export default {
             for (const brokerKey in this.券商对象) {
                 this.券商对象[brokerKey].打新记录.forEach((ele) => {
                     if (ele.name === key) {
-                        if (ele.净利润) {
-                            obj[brokerKey] = `${ele.打新类型.substring(0, 2)}${ele.打新手数}手/中签${ele.中签手数}手`;
+                        if (ele.中签手数 > 0) {
+                            obj[brokerKey] = {
+                                打新手数: `${ele.打新类型.substring(0, 2)}${ele.打新手数}手`,
+                                中签手数: `中签${ele.中签手数}手`,
+                            };
                         } else {
-                            obj[brokerKey] = `${ele.打新类型.substring(0, 2)}${ele.打新手数}手`;
+                            obj[brokerKey] = {
+                                打新手数: `${ele.打新类型.substring(0, 2)}${ele.打新手数}手`,
+                            };
                         }
                     }
                 });
 
                 // 处理未申购情况
                 if(!obj[brokerKey]) {
-                    obj[brokerKey] = '未申购';
+                    obj[brokerKey] = {};
                 }
             }
             this.tableData.push(obj);
         };
-
         for (const brokerKey in this.券商对象) {
             this.tableKeyList.push(brokerKey);
         }
-        console.log(this.tableKeyList)
-
-
         console.log(this.tableData);
+
+        // 收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
+        let 收益对象 = {};
+        for (const brokerKey in this.券商对象) {
+            this.券商对象[brokerKey].打新记录.forEach((ele) => {
+                if (ele.资金占用 === 0) {
+                    if(!收益对象[ele.资金解放日]) {
+                        收益对象[ele.资金解放日] = ele.净利润;
+                    } else {
+                        收益对象[ele.资金解放日] += ele.净利润;
+                    }
+                }
+            });
+        }
+        let 收益日期 = [], 收益利润 = [], 收益数组对象 = [], 总收益 = 0;
+        // 排序
+        for (const key in 收益对象) {
+            收益数组对象.push({
+                日期: key,
+                利润: 收益对象[key],
+            })
+        }
+        收益数组对象.forEach((ele) => {
+            收益日期.push(ele.日期);
+            收益利润.push((总收益 += ele.利润).toFixed(2) - 0);
+        });
+        this.createChart('main', 收益日期, 收益利润)
+        console.log(收益数组对象);
 
         // let index = -1;
         // for (const key in 配售对象) {
