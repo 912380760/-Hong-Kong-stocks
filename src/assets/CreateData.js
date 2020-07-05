@@ -1,4 +1,4 @@
-// 处理配售信息Class
+// 创建配售对象,处理配售信息
 class CreateData {
     constructor(data) {
         let {name, 股价, 总股数, 公开发售配额, 公开发售超购倍数, 国际配售倍数} = data;

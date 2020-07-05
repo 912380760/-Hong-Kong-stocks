@@ -1,4 +1,4 @@
-// 处理券商
+// 创建券商,记录券商打新记录和收益
 class CreateBroker {
     constructor(data) {
         let { name, 余额, 港股平台费, 港股免佣到期日, 现金认购费, 融资认购费, 佣金 } = data;
