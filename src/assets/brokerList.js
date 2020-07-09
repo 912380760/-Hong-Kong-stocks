@@ -193,6 +193,20 @@ let data = [
             return 100;
         }
     },
+    {
+        name: '盈路', // 股票牛
+        "余额": 0,
+        "港股平台费": 0,
+        "港股免佣到期日": '', // 需要传入具体的日期
+        "现金认购费": 50,
+        "融资认购费": 100,
+        "暗盘额外费用": function(data) {
+            return 50;
+        },
+        "佣金": function(data) {
+            return 50;
+        }
+    },
 ]
 
 export default data;

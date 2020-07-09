@@ -20,7 +20,22 @@
     <div id="main1" style="width: 100%;height:400px;"></div>
 
     <h3>配售基础资料</h3>
-    <div id="main6" style="width: 100%;height:400px;"></div>
+    <div class="box">
+      <div class="box-left">
+        <el-input  placeholder="请输入股票名称" clearable v-model="input" @keyup.enter.native="clickSerech(input)">
+          <el-button @click="clickSerech(input)" slot="append" icon="el-icon-search"></el-button>
+        </el-input>
+      </div>
+    </div>
+
+    <el-table :data="tableData2" style="width: 100%;" border height="750px">
+      <el-table-column prop="股票/资料" label="股票/资料" width="135" fixed></el-table-column>
+      <el-table-column sortable v-for="(i,index) in tableKeyList2" :key="index" :prop="i" :label="i" width="150">
+        <template slot-scope="scope">
+          {{scope.row[i] | filterA(i)}}
+        </template>
+      </el-table-column>
+    </el-table>
 
     <h3>一手占比趋势</h3>
     <div id="main2" style="width: 100%;height:400px;"></div>
@@ -70,11 +85,6 @@
 
   console.log(配售对象)
   console.log(券商对象)
-  // console.log(配售对象.康方生物.甲组总申购金额)
-  // console.log(配售对象.建业新生活.甲组总申购金额 + 配售对象.沛佳医疗.甲组总申购金额)
-  // console.log(配售对象.网易.甲组总申购金额)
-  // console.log(配售对象.京东.甲组总申购金额)
-  // console.log(配售对象.海吉亚医疗.甲组总申购金额 + 配售对象.康基医疗.甲组总申购金额)
 
   let num0 = 0;
   for (const key in 券商对象) {
@@ -82,59 +92,6 @@
     num0 += ele.余额;
   }
   console.log('余额: ' + num0)
-
-
-  let 海普瑞 = 66030 * 20.6 * 500 / 0.097,
-          弘阳服务 = 20000 * 4.3 * 1000 / 0.0756;
-  let 预估甲组总申购金额 = (配售对象.海吉亚医疗.甲组总申购金额 + 配售对象.康基医疗.甲组总申购金额) * 1.3 - 海普瑞 - 弘阳服务;
-  // console.log(预估甲组总申购金额);
-
-  let 股票发售信息 = {
-    欧康维视生物: {
-      "股价": 14.66,
-      "总股数": 105000000,
-      "每手股数": 500,
-      "公开发售配额": 0.5,
-    },
-    永泰生物: {
-      "股价": 11,
-      "总股数": 105000000,
-      "每手股数": 1000,
-      "公开发售配额": 0.5,
-    },
-    正荣服务: {
-      "股价": 4.7,
-      "总股数": 250000000,
-      "每手股数": 1000,
-      "公开发售配额": 0.5,
-    },
-    思摩尔: {
-      "股价": 12.4,
-      "总股数": 574366666,
-      "每手股数": 1000,
-      "公开发售配额": 0.37,
-    },
-    // 绿城管理: {
-    //     "股价": 3,
-    //     "总股数": 477560000,
-    //     "每手股数": 1000,
-    //     "公开发售配额": 0.3,
-    // }
-  };
-
-
-  // let 分配策略 = {
-  //     欧康维视生物: 7 / 11.5,
-  //     永泰生物: 1.5 / 11.5,
-  //     正荣服务: 1 / 11.5,
-  //     思摩尔: 2 / 11.5,
-  // }
-  // let arr = [];
-  // for (const 分配策略Key in 分配策略) {
-  //     const temp = 分配策略[分配策略Key]
-  //     arr.push(temp * 预估甲组总申购金额)
-  // }
-  // console.log(arr)
 
   // 冒泡排序
   function bubbleSort (arr) {
@@ -158,16 +115,60 @@
   }
 
   export default {
-    name: 'HelloWorld',
-    props: {
-      msg: String
-    },
     data() {
       return {
         配售对象,
         券商对象,
-        tableData: [],
-        tableKeyList: [],
+        tableData: [], // 申购记录
+        tableKeyList: [], // 申购记录Key List
+
+        tableData2: [], // 配售基础资料表格
+        tableKeyList2: [ // 配售基础资料表格Key List
+          '上市日期',
+          '一手中签率',
+          '稳中手数',
+          '甲组平均中签率',
+          '一手金额',
+          '公开配售倍数',
+          '国际配售倍数',
+          '总申购人数',
+          '公开申购金额',
+          '甲组申购倍数',
+          '乙组申购倍数',
+          '甲组申购金额',
+          '乙组申购金额',
+          '一手占比',
+          '一手人数占比',
+          '甲组人数',
+          '乙组人数',
+          '公开发售占比',
+          '公开发售手数',
+          '乙组平均中签率',
+          '股票代号',
+        ],
+
+        input: '', // 搜索配售券商
+        temp: [],
+      }
+    },
+    filters: {
+      // 把数字转换成百分比
+      filterA(value, arg1) {
+        if(/一手中签率|甲组平均中签率|乙组平均中签率|公开发售占比|一手占比|一手人数占比/.test(arg1)) {
+          return (value * 100).toFixed(2) + '%';
+        } else if(/甲组申购金额|乙组申购金额|公开申购金额/.test(arg1)) {
+          return (value / 1000000000).toFixed(4) + '亿';
+        } else {
+          return value;
+        }
+      }
+    },
+    watch: {
+      // 如果搜索值为空,还原table
+      input(nowValue) {
+        if (nowValue === '') {
+          this.tableData2 = this.temp;
+        }
       }
     },
     methods: {
@@ -255,6 +256,26 @@
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
       },
+
+      // 点击搜索券商
+      clickSerech(name) {
+        let temp;
+        if(name) {
+          this.temp.forEach((ele) => {
+            if (ele["股票/资料"].indexOf(name) > -1 || ele.股票代号 === name) {
+              temp = ele;
+            }
+          });
+
+          if (temp) {
+            this.tableData2 = [temp];
+          } else {
+            this.$message('未找到该股票');
+          }
+        } else {
+          this.tableData2 = this.temp;
+        }
+      },
     },
     mounted() {
       // 申购中签记录
@@ -285,10 +306,11 @@
         }
         this.tableData.push(obj);
       };
+      this.tableData.reverse();
       for (const brokerKey in this.券商对象) {
         this.tableKeyList.push(brokerKey);
       }
-      console.log(this.tableData);
+      console.log(this.tableData, this.tableKeyList);
 
       // 历史收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
       let 收益对象 = {};
@@ -343,10 +365,28 @@
           股票收益.push((个股收益对象[key]).toFixed(2) - 0)
         }
       };
+      股票名.reverse();
+      股票收益.reverse();
       this.createChart2('main1', 股票名, 股票收益, '收益');
       console.log(个股收益对象);
 
       // todo 添加配售基础资料
+      data.forEach((ele) => {
+        for (const key in 配售对象) {
+          let temp = 配售对象[key];
+          if (ele.name === key) {
+            let temp2 = {};
+            temp2['股票/资料'] = ele.name;
+
+            this.tableKeyList2.forEach((ele2) => {
+              temp2[ele2] = temp[ele2];
+            })
+            this.tableData2.push(temp2);
+          }
+        }
+      });
+      this.temp = this.tableData2;
+      console.log(this.tableData2)
 
       // todo 根据港股回拨倍数将一手占比趋势分开陈列
       // 一手占比趋势
@@ -372,5 +412,12 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  .box {
+    display: flex;
+    /*justify-content: space-between;*/
+    margin-bottom: 20px;
+  }
+  .box-left {
+    width: 300px;
+  }
 </style>
