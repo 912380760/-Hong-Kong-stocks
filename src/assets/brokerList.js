@@ -207,6 +207,62 @@ let data = [
             return 50;
         }
     },
+    {
+        name: '利弗莫尔',
+        "余额": 0,
+        "港股平台费": 7.26,
+        "港股免佣到期日": '', // 需要传入具体的日期
+        "现金认购费": 50,
+        "融资认购费": 100,
+        "暗盘额外费用": function(data) {
+            return data * 0.00025 > 5 ? (data * 0.00025).toFixed(2) - 0 : 5;
+        },
+        "佣金": function(data) {
+            return data * 0.00025 > 8 ? (data * 0.00025).toFixed(2) - 0 : 8;
+        }
+    },
+    {
+        name: '青石',
+        "余额": 0,
+        "港股平台费": 0,
+        "港股免佣到期日": '', // 需要传入具体的日期
+        "现金认购费": 0,
+        "融资认购费": 100,
+        "暗盘额外费用": function(data) {
+            return data * 0.0005 > 40 ? (data * 0.0005).toFixed(2) - 0 : 40;
+        },
+        "佣金": function(data) {
+            return data * 0.0005 > 40 ? (data * 0.0005).toFixed(2) - 0 : 40;
+        }
+    },
+    {
+        name: '有鱼',
+        "余额": 0,
+        "港股平台费": 0,
+        "港股免佣到期日": '', // 需要传入具体的日期
+        "现金认购费": 0,
+        "融资认购费": 0,
+        "暗盘额外费用": function(data) {
+            return data * 0.001 > 50 ? (data * 0.001).toFixed(2) - 0 : 50;
+        },
+        "佣金": function(data) {
+            return data * 0.0001 > 50 ? (data * 0.001).toFixed(2) - 0 : 50;
+        }
+    },
+    {
+        name: '佳兆业',
+        "余额": 0,
+        "港股平台费": 0,
+        "港股免佣到期日": '', // 需要传入具体的日期
+        "现金认购费": 50,
+        "融资认购费": 80,
+        "暗盘额外费用": function(data) {
+            return 120;
+        },
+        "佣金": function(data) {
+            return 15;
+        }
+    },
 ]
 
 export default data;
