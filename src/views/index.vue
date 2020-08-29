@@ -1,5 +1,6 @@
 <template>
   <div class="hello" style="margin: 0 10px;">
+    <myHead></myHead>
     <h3>中签率预计</h3>
     <el-table :data="tableData3" border>
       <el-table-column label="股票/中签率" width="135" prop="name"></el-table-column>
@@ -42,7 +43,7 @@
     </div>
 
     <el-table :data="tableData2" style="width: 100%;" border height="750px">
-      <el-table-column prop="股票/资料" label="股票/资料" width="135" fixed></el-table-column>
+      <el-table-column prop="股票/资料" label="股票/资料" width="160" fixed></el-table-column>
       <el-table-column sortable v-for="(i,index) in tableKeyList2" :key="index" :prop="i" :label="i" width="150">
         <template slot-scope="scope">
           {{scope.row[i] | filterA(i)}}
@@ -53,7 +54,7 @@
     <h3>一手占比趋势</h3>
     <p>受限于甲组申购倍数影响,超过30倍以后会严重影响一手占比分配,(因为过多的一手分配策略会让融资申购太吃亏,影响融资申购热情,这是港交所不愿意看到的)</p>
     <p>ps:甲组申购倍数为回拨之后的申购倍数,甲组能超购到30倍,公开申购肯定已经超购过百倍回拨50%了</p>
-    <h4>甲组申购超过30倍的平均一手占比: {{this.甲30倍以上一手平均占比 | filterA('一手中签率') }}</h4>
+    <h4>甲组申购超过30倍,乙组申购超过50倍的平均一手占比: {{this.甲30倍以上一手平均占比 | filterA('一手中签率') }}</h4>
     <div id="main2" style="width: 100%;height:400px;"></div>
     <h4>甲组申购小于30倍的平均一手占比: {{this.甲30倍以下一手平均占比 | filterA('一手中签率') }}</h4>
     <div id="main3" style="width: 100%;height:400px;"></div>
@@ -78,6 +79,9 @@
 
     <h3>个股收益</h3>
     <div id="main1" style="width: 100%;height:400px;"></div>
+
+    <h3>券商收益</h3>
+    <div id="main4" style="width: 100%;height:400px;"></div>
   </div>
 </template>
 
@@ -94,6 +98,7 @@
   // 创建券商对象
   import CreateBroker from "../assets/CreateBroker";
   import echarts from 'echarts';
+  import myHead from '@/components/head';
 
   const 配售对象 = {};
   const 券商对象 = {};
@@ -149,6 +154,9 @@
   }
 
   export default {
+    components: {
+      myHead,
+    },
     data() {
       return {
         配售对象,
@@ -161,10 +169,8 @@
           '上市日期',
           '一手中签率',
           '稳中手数',
-          '甲组平均中签率',
           '一手金额',
           '公开配售倍数',
-          '国际配售倍数',
           '总申购人数',
           '公开申购金额',
           '甲组申购倍数',
@@ -176,8 +182,8 @@
           '甲组人数',
           '乙组人数',
           '公开发售占比',
+          '募资金额',
           '公开发售手数',
-          '乙组平均中签率',
           '股票代号',
         ],
 
@@ -189,6 +195,7 @@
         temp: [],
         甲30倍以上一手平均占比: 0,
         甲30倍以下一手平均占比: 0,
+        平均稳中倍数: 0,
       }
     },
     filters: {
@@ -196,7 +203,7 @@
       filterA(value, arg1) {
         if(/一手中签率|甲组平均中签率|乙组平均中签率|公开发售占比|一手占比|一手人数占比/.test(arg1)) {
           return (value * 100).toFixed(2) + '%';
-        } else if(/甲组申购金额|乙组申购金额|公开申购金额/.test(arg1)) {
+        } else if(/甲组申购金额|乙组申购金额|公开申购金额|募资金额/.test(arg1)) {
           return (value / 100000000).toFixed(4) + '亿';
         } else {
           return value;
@@ -296,6 +303,46 @@
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
       },
+      createChart3(domId, xAxis, series, text) {
+        console.log(xAxis, series)
+        // 基于准备好的dom，初始化echarts实例
+        const myChart = echarts.init(document.getElementById(domId));
+        // echarts配置
+        const option = {
+          title: {
+            text: '某站点用户访问来源',
+            subtext: '纯属虚构',
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: xAxis,
+          },
+          series: [
+            {
+              name: text,
+              type: 'pie',
+              radius: '55%',
+              center: ['50%', '60%'],
+              data: series,
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+      },
 
       // 点击搜索券商
       clickSerech(name) {
@@ -353,8 +400,8 @@
       for (const brokerKey in this.券商对象) {
         this.tableKeyList.push(brokerKey);
       }
-
       // 历史收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
+      // todo 每个股票打新费用 总中签率和实际中签率 资金占用
       let 收益对象 = {};
       for (const brokerKey in this.券商对象) {
         this.券商对象[brokerKey].打新记录.forEach((ele) => {
@@ -424,7 +471,6 @@
           }
         }
       });
-      console.log(this.tableData2);
       this.temp = this.tableData2;
 
       // 一手占比趋势
@@ -439,7 +485,7 @@
           if(key === ele.name) {
             let temp = 配售对象[key];
 
-            if (temp.一手占比 < 1 && temp.甲组申购倍数 > 30) {
+            if (temp.一手占比 < 1 && temp.甲组申购倍数 > 30 && temp.公开配售倍数 > 150) {
               甲30倍以上股票.push(key);
               甲30倍以上一手占比.push(temp.一手占比);
               甲30倍以上一手平均占比 += temp.一手占比;
@@ -458,7 +504,8 @@
       this.createChart2('main3', 甲30倍以下股票, 甲30倍以下一手占比, '比例');
 
 
-      // todo 通过招股信息计算中签率
+      // todo 通过招股信息计算中签率  计算稳中手数跟申购倍数和一手占比的关系
+
       for (const key in 股票对象集合) {
         let ele = 股票对象集合[key];
         if(ele.总股数) {
@@ -477,10 +524,16 @@
           this.tableKeyList3.push(ele.name);
         }
       }
-      console.log(this.tableData3);
+
+
+
+      // 券商收益
+
+      // todo 单元测试
 
       // 一手中签率 平均中签率 稳中手数
       // 打新人数 一手占比 回拨比例
+
     }
   }
 </script>
