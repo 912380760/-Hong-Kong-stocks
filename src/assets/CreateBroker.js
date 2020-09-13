@@ -1,159 +1,169 @@
+import brokerList from "./brokerList";
+
 // 创建券商,记录券商打新记录和收益
 class CreateBroker {
-    constructor(data) {
-        let { name, 余额, 港股平台费, 港股免佣到期日, 现金认购费, 融资认购费, 佣金 } = data;
-        this.name = name;
-        this.余额 = 余额;
-        this.港股平台费 = 港股平台费;
-        this.港股免佣到期日 = 港股免佣到期日;
-        this.现金认购费 = 现金认购费;
-        this.融资认购费 = 融资认购费;
-        this.中签费 = 0.010077;
-        this.打新记录 = [];
-        // 佣金需要传一个函数,接受总交易额,返回佣金
-        this.佣金 = 佣金;
-    }
+  constructor(data) {
+    this.中签费 = 0.010077;
+    this.打新记录 = data;
+    this.brokerList = brokerList;
 
-    港股代收费项目(总交易额) {
-        // 交收费
-        const 交收费 = 总交易额 * 0.00002 > 2 ? 总交易额 * 0.00002 : 2;
-        const 交易印花税 = 总交易额 * 0.001 > 1 ? 总交易额 * 0.00001 : 1;
-        const 交易费 = 总交易额 * 0.00005 > 0.01 ? 总交易额 * 0.00005 : 0.01;
-        const 交易证费 = 总交易额 * 0.000027 > 0.01 ? 总交易额 * 0.000027 : 0.01;
-        const 交易系统使用费 = 0.5;
+    this.打新记录.forEach((ele, index, arr) => {
+      arr[index] = this.计算申购成本和盈利(ele);
+    });
+    this.打新记录.forEach((ele, index, arr) => {
+      arr[index] = this.合计(ele);
+    });
+  }
 
-        return (交收费 + 交易印花税 + 交易费 + 交易证费 + 交易系统使用费).toFixed(2) - 0;
-    }
+  计算申购成本和盈利(data) {
+    const { 上限招股价, 每手股数, 记息天数, 中签定价 } = data;
+    if (data.list) {
+      data.list.forEach((ele, index) => {
+        const {
+          打新手数,
+          融资比例,
+          融资利率,
+          打新手续费,
+          打新类型,
+          券商,
+          中签数,
+          出售价格,
+          出售日期,
+        } = ele;
+        let 融资成本 = 0;
 
-    港股出售费用计算(data) {
-        let { 出售价格, 出售手数, 每手股数, 出售日期 } = data;
-        const 总交易额 = (出售价格 * 出售手数 * 每手股数).toFixed(2) - 0;
-        const 代收费项目费用 = this.港股代收费项目(总交易额);
-        let 佣金 = 0;
-        if(new Date(this.港股免佣到期日) - new Date(出售日期) < 0) {
-            佣金 = this.佣金(data.总交易额)
-        }
-        return (代收费项目费用 + 佣金 + this.港股平台费).toFixed(2) - 0;
-    }
-
-    添加港股打新记录(data) {
-        let { name, 打新类型, 打新手数, 一手金额, 融资利率, 融资倍数, 每手股数, 记息天数, 打新日期, 上市日期 } = data;
-        if (!融资倍数) {
-            融资倍数 = 0;
-        }
-
-        let 打新费用 = 0, 资金占用;
-        if(打新类型 === '现金打新') {
-            打新费用 = this.现金认购费;
-            资金占用 = (打新手数 * 一手金额).toFixed(2) - 0;
+        if (["老虎", "雪盈", "赢路", "长桥"].indexOf(券商) > -1) {
+          融资成本 =
+            ((上限招股价 * 每手股数 * (1 + this.中签费) * 打新手数 * 融资利率) /
+              365) *
+            记息天数;
         } else {
-            打新费用 = (打新手数 * 一手金额 / 融资倍数 * (融资倍数 - 1) * 融资利率 / 365 * 记息天数 + this.融资认购费).toFixed(2) - 0;
-            资金占用 = (打新手数 * 一手金额 / 融资倍数).toFixed(2) - 0;
+          融资成本 =
+            ((上限招股价 *
+              每手股数 *
+              (1 + this.中签费) *
+              打新手数 *
+              融资比例 *
+              融资利率) /
+              365) *
+            记息天数;
         }
-        this.打新记录.push({
-            name,
-            打新类型,
+        let 认购手续费;
+        if (打新手续费 !== undefined) {
+          认购手续费 = 打新手续费;
+          融资成本 = 0;
+        } else {
+          if (打新类型 === "现金打新") {
+            认购手续费 = this.brokerList[券商].现金认购费;
+          } else {
+            认购手续费 = this.brokerList[券商].融资认购费;
+          }
+        }
+        // data.list[index].认购手续费 = 认购手续费;
+        // data.list[index].融资成本 = 融资成本;
+        data.list[index].申购成本 = 认购手续费 + 融资成本;
+
+        // 计算盈利
+        if (中签数 > 0 && 出售价格 && 出售日期) {
+          const 出售费用 = this.港股出售费用计算({
+            出售价格,
+            中签数,
+            出售日期,
             每手股数,
-            打新手数,
-            一手金额,
-            融资利率,
-            融资倍数,
-            打新日期,
-            打新费用,
-            资金占用,
-            总认购金额: (打新手数 * 一手金额).toFixed(2) - 0,
-            上市日期,
-        });
-        // 结算打新费用
-        this.余额 -= 打新费用;
-        this.余额 = this.余额.toFixed(2) - 0;
+            券商对象: this.brokerList[券商],
+          });
+          const 股票盈利 = (出售价格 - 中签定价) * 每手股数 * 中签数;
+          data.list[index].盈亏 =
+            股票盈利 -
+            data.list[index].申购成本 -
+            出售费用 -
+            中签定价 * 每手股数 * this.中签费;
+        } else {
+          data.list[index].盈亏 = 0 - data.list[index].申购成本;
+        }
 
-        // 链式调用
-        return this;
+        // 计算资金占用
+        data.list[index].资金占用 =
+          每手股数 *
+            上限招股价 *
+            (1 + this.中签费) *
+            打新手数 *
+            (1 - 融资比例) +
+          data.list[index].申购成本;
+
+        data.list[index].申购金额 =
+          每手股数 * 上限招股价 * (1 + this.中签费) * 打新手数 +
+          data.list[index].申购成本;
+
+        // 百分比收益
+        if (data.list[index].资金占用 > 0) {
+          data.list[index].百分比收益 =
+            data.list[index].盈亏 / data.list[index].资金占用;
+        } else {
+          data.list[index].百分比收益 = 0;
+        }
+      });
     }
 
-    港股中签(data) {
-        this.打新记录.forEach((ele, index) => {
-            if(data.name === ele.name) {
-                let {中签定价, 中签手数} = data;
-                this.打新记录[index].中签手数 = 中签手数;
-                this.打新记录[index].中签定价 = 中签定价;
-                if(中签手数 > 0) {
-                    this.打新记录[index].资金占用 = (中签手数 * 中签定价 * ele.每手股数).toFixed(2) - 0;
-                    this.打新记录[index].中签费用 = (中签手数 * 中签定价 * ele.每手股数 * this.中签费).toFixed(2) - 0;
+    return data;
+  }
 
-                    // 结算中签费
-                    this.余额 -= (中签手数 * 中签定价 * ele.每手股数 * this.中签费);
-                    this.余额 = this.余额.toFixed(2) - 0;
-                } else {
-                    this.打新记录[index].资金占用 = 0;
-                    this.打新记录[index].中签费用 = 0;
-                    this.打新记录[index].资金解放日 = this.打新记录[index].上市日期;
-                }
-                this.打新记录[index].净利润 = 0 - this.打新记录[index].打新费用;
-            }
-        })
+  港股代收费项目(总交易额) {
+    // 交收费
+    const 交收费 = 总交易额 * 0.00002 > 2 ? 总交易额 * 0.00002 : 2;
+    const 交易印花税 = 总交易额 * 0.001 > 1 ? 总交易额 * 0.00001 : 1;
+    const 交易费 = 总交易额 * 0.00005 > 0.01 ? 总交易额 * 0.00005 : 0.01;
+    const 交易证费 = 总交易额 * 0.000027 > 0.01 ? 总交易额 * 0.000027 : 0.01;
+    const 交易系统使用费 = 0.5;
 
-        // 链式调用
-        return this;
+    return (
+      (交收费 + 交易印花税 + 交易费 + 交易证费 + 交易系统使用费).toFixed(2) - 0
+    );
+  }
+
+  港股出售费用计算(data) {
+    let { 出售价格, 出售手数, 每手股数, 出售日期, 券商对象 } = data;
+    let { 港股免佣到期日, 最低佣金, 佣金, 港股平台费 } = 券商对象;
+    const 总交易额 = (出售价格 * 出售手数 * 每手股数).toFixed(2) - 0;
+    const 代收费项目费用 = this.港股代收费项目(总交易额);
+    let 实际佣金 = 0;
+    if (!港股免佣到期日 || new Date(港股免佣到期日) - new Date(出售日期) < 0) {
+      实际佣金 = 总交易额 * 佣金 > 最低佣金 ? 总交易额 * 佣金 : 最低佣金;
     }
+    return 代收费项目费用 + 实际佣金 + 港股平台费;
+  }
 
-    出售中签股票(data) {
-        this.打新记录.forEach((ele, index) => {
-            if(data.name === ele.name) {
-                let {出售价格, 出售手数, 出售日期} = data;
-                // 结算出售费用
-                const 出售费用 = this.港股出售费用计算({
-                    出售价格,
-                    出售手数,
-                    出售日期,
-                    每手股数: ele.每手股数,
-                });
-                this.余额 -= 出售费用;
+  合计(data) {
+    const { 每手股数, 上限招股价 } = data;
+    let 盈亏 = 0,
+      资金占用 = 0,
+      手数 = 0,
+      中签数 = 0,
+      申购成本 = 0,
+      申购金额 = 0,
+      百分比收益;
+    data.list.forEach((ele) => {
+      盈亏 += ele.盈亏;
+      资金占用 += ele.资金占用;
+      手数 += ele.打新手数;
+      中签数 += ele.中签数;
+      申购成本 += ele.申购成本;
+      申购金额 += ele.申购金额;
+    });
+    data.盈亏 = 盈亏;
+    data.资金占用 = 资金占用;
+    data.手数 = 手数;
+    data.中签数 = 中签数;
+    data.申购成本 = 申购成本;
+    data.百分比收益 = 盈亏 / 资金占用;
+    data.融资倍数 =
+      (手数 * 每手股数 * 上限招股价 * (1 + this.中签费)) /
+      (资金占用 - 申购成本);
+    data.申购金额 = 申购金额;
+    return data;
+  }
 
-                let 出售记录对象 = {
-                    出售价格,
-                    出售手数,
-                    出售日期,
-                    出售费用,
-                }
-                if (!this.打新记录[index].出售记录) {
-                    this.打新记录[index].出售记录 = [];
-                }
-                let {中签定价, 每手股数} = ele;
-                let {中签费用, 中签手数, 打新费用} = this.打新记录[index];
-                let 利润 = (出售价格 - 中签定价) * 出售手数 * 每手股数;
-                this.打新记录[index].出售记录.push(出售记录对象);
-                if (this.打新记录[index].股票盈利 || this.打新记录[index].股票盈利 === 0) {
-                    this.打新记录[index].股票盈利 += (利润.toFixed(2) - 0);
-                    this.打新记录[index].已出售手数 += 出售手数;
-                } else {
-                    this.打新记录[index].股票盈利 = 利润.toFixed(2) - 0;
-                    this.打新记录[index].已出售手数 = 出售手数;
-                }
-
-                let 已出售总费用 = 0;
-                this.打新记录[index].出售记录.forEach((ele) => {
-                    已出售总费用 += ele.出售费用;
-                });
-                this.打新记录[index].资金占用 -= (出售手数 * 中签定价 * 每手股数).toFixed(2) - 0;
-                this.打新记录[index].净利润 = (
-                    this.打新记录[index].股票盈利 - (打新费用 + 中签费用) / 中签手数 * this.打新记录[index].已出售手数
-                    - 已出售总费用
-                ).toFixed(2) - 0;
-
-                if(this.打新记录[index].资金占用 === 0) {
-                    this.打新记录[index].资金解放日 = 出售日期;
-                }
-
-                this.余额 += 利润;
-                this.余额 = this.余额.toFixed(2) - 0;
-            }
-        })
-
-        // 链式调用
-        return this;
-    }
+  总盈亏() {}
 }
 
 export default CreateBroker;

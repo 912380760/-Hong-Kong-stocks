@@ -41,6 +41,7 @@ class CreateData {
 
     this.甲组稳中 = this.计算甲组稳中(this);
     this.稳中手数 = this.甲组稳中.手数;
+
     this.公开发售手数 = parseInt(
       (this.招股股数 / this.每手股数) * this.公开发售占比
     );
@@ -189,6 +190,7 @@ class CreateData {
         return item;
       }
     }
+    return {};
   }
 
   甲组中签手数() {

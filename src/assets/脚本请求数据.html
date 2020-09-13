@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+  let tempData = []
+
+  // const arr = [];
+  // tempData.forEach(ele => {
+  //   arr.push(ele.股票代号);
+  // });
+  // console.log(arr)
+
+  // 股票代号数组
+  let arr = [
+    "01825",
+    "03690",
+    "02552",
+    "02680",
+    "08601",
+    "01672",
+    "02051",
+    "01810",
+    "01598",
+    "08107",
+    "08511",
+    "01735",
+    "08040",
+    "06829",
+    "08371",
+    "01730",
+    "08422",
+    "08419",
+    "08376",
+    "08470",
+    "08457",
+    "08199",
+    "06088",
+    "08463",
+    "08157",
+    "08469",
+    "08183",
+    "08365",
+    "08252",
+    "08410",
+    "08409",
+    "08347",
+    "08442",
+    "08423"
+  ];
+
+  console.log(arr.length)
+
+  function ajax(params) {
+    return fetch("https://jybdata.iqdii.com/jybapp/IPOService/GetPlacingResult?v=" + Math.random(), {
+      "headers": {
+        "accept": "*/*",
+        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site"
+      },
+      "referrer": "https://www.aipo.org/Home/AipoDetail?stockCode=" + params,
+      "referrerPolicy": "no-referrer-when-downgrade",
+      "body": `{"code": "E${params}", "count": "-1" }`,
+      "method": "POST",
+      "mode": "cors",
+      "credentials": "omit"
+    });
+  }
+  function delay(second = 2) {
+    return new Promise((resolve => {
+      setTimeout(() => {
+        resolve();
+      }, second * 1000);
+    }))
+  }
+  let data = [];
+  async function run (arr) {
+    let PromiseArr = [];
+    for(let i=0;i<arr.length;i++) {
+      PromiseArr.push(ajax(arr[i]));
+
+      // 5个并发数
+      if(PromiseArr.length === 5 || i === arr.length) {
+        const a = await Promise.all(PromiseArr);
+        let tempArr = [];
+        a.forEach(ele => {
+          tempArr.push(ele.json());
+        })
+        const b = await Promise.all(tempArr);
+        // 处理返回结果
+        b.forEach(ele => {
+          if(ele.result === 1 && ele.data) {
+            data.push(ele.data);
+          }
+        });
+        PromiseArr = [];
+        await delay();
+      }
+    }
+    console.log(data);
+  }
+  run(arr);
+</script>
