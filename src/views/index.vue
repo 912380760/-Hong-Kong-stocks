@@ -11,7 +11,7 @@
     </div>
 
     <el-table :data="tableData2" style="width: 100%;" border height="700px" id="tableData2">
-      <el-table-column prop="股票/资料" label="股票/资料" width="160" fixed></el-table-column>
+      <el-table-column prop="name" label="股票/资料" width="160" fixed></el-table-column>
       <el-table-column sortable v-for="(i,index) in tableKeyList2" :key="index" :prop="i" :label="i" width="130">
         <template slot-scope="scope">
           {{scope.row[i] | filterA(i)}}
@@ -24,39 +24,28 @@
     <p>ps:甲组申购倍数为回拨之后的申购倍数,甲组能超购到50倍,公开申购肯定已经超购过百倍回拨50%了</p>
     <h4>甲组申购超过50倍,乙组申购超过100倍的平均一手占比: {{this.甲30倍以上一手平均占比 | filterA('一手中签率') }}</h4>
     <div id="main2" style="width: 100%;height:400px;"></div>
-    <h4>甲组申购小于30倍的平均一手占比: {{this.甲30倍以下一手平均占比 | filterA('一手中签率') }}</h4>
+    <h4>甲组申购小于50倍的平均一手占比: {{this.甲30倍以下一手平均占比 | filterA('一手中签率') }}</h4>
     <div id="main3" style="width: 100%;height:400px;"></div>
   </div>
 </template>
 
 <script>
 // 配售数据
-import data from '../assets/配售数据';
-// 创建配售对象
-import CreateData from '../assets/CreateData';
+import data from '../assets/CreateData';
 import echarts from 'echarts';
-
-const 配售对象 = {};
-
-data.forEach((ele) => {
-  配售对象[ele.name] = new CreateData(ele);
-})
-
-
-
-console.log(配售对象)
-
+console.log(data);
 
 export default {
   name: 'index',
   data() {
     return {
-      配售对象,
-
-      tableData2: [], // 配售基础资料表格
+      data,
+      tableData2: data.concat(), // 配售基础资料表格
       tableKeyList2: [ // 配售基础资料表格Key List
         '一手中签率',
         '稳中手数',
+        // '首日开盘涨幅',
+        // '首日收盘涨幅',
         '一手金额',
         '公开配售倍数',
         '总申购人数',
@@ -81,7 +70,6 @@ export default {
 
 
       input: '', // 搜索配售券商
-      temp: [],
       甲30倍以上一手平均占比: 0,
       甲30倍以下一手平均占比: 0,
       平均稳中倍数: 0,
@@ -90,20 +78,27 @@ export default {
   filters: {
     // 把数字转换成百分比
     filterA(value, arg1) {
+      if (arg1 === '一手金额') {
+        return value.toFixed(0);
+      }
+      if(/公开配售倍数|乙组申购倍数|甲组申购倍数/.test(arg1)) {
+        return value.toFixed(1);
+      }
       if(/一手中签率|甲组平均中签率|乙组平均中签率|公开发售占比|一手占比|一手人数占比/.test(arg1)) {
         return (value * 100).toFixed(2) + '%';
-      } else if(/甲组申购金额|乙组申购金额|公开申购金额|募资金额/.test(arg1)) {
-        return (value / 100000000).toFixed(2) + '亿';
-      } else {
-        return value;
       }
+      if(/甲组申购金额|乙组申购金额|公开申购金额|募资金额/.test(arg1)) {
+        return (value / 100000000).toFixed(2) + '亿';
+      }
+
+      return value;
     }
   },
   watch: {
     // 如果搜索值为空,还原table
     input(nowValue) {
       if (nowValue === '') {
-        this.tableData2 = this.temp;
+        this.tableData2 = this.data.concat();
       }
     }
   },
@@ -152,8 +147,8 @@ export default {
       if(name) {
         const nameList = name.split(',');
         nameList.forEach((element) => {
-          this.temp.forEach((ele) => {
-            if (ele["股票/资料"].indexOf(element) > -1 || ele.股票代号 === element) {
+          this.data.forEach((ele) => {
+            if (ele.name.indexOf(element) > -1 || ele.股票代号 === element) {
               temp.push(ele);
             }
 
@@ -165,28 +160,10 @@ export default {
           this.$message('未找到该股票');
         }
       } else {
-        this.tableData2 = this.temp;
+        this.tableData2 = this.data.concat();
       }
     },
 
-    // 配售基础资料
-    calcA() {
-      data.forEach((ele) => {
-        for (const key in 配售对象) {
-          let temp = 配售对象[key];
-          if (ele.name === key) {
-            let temp2 = {};
-            temp2['股票/资料'] = ele.name;
-
-            this.tableKeyList2.forEach((ele2) => {
-              temp2[ele2] = temp[ele2];
-            })
-            this.tableData2.push(temp2);
-          }
-        }
-      });
-      this.temp = this.tableData2;
-    },
     // 一手占比趋势
     calcB() {
       let 甲30倍以上股票 = [],
@@ -195,22 +172,16 @@ export default {
           甲30倍以下股票 = [],
           甲30倍以下一手占比 = [],
           甲30倍以下一手平均占比 = 0;
-      data.forEach((ele) => {
-        for (const key in 配售对象) {
-          if(key === ele.name) {
-            let temp = 配售对象[key];
+      this.data.forEach((ele) => {
+        if (ele.一手占比 < 1 && ele.甲组申购倍数 > 50 && ele.乙组申购倍数 > 100) {
+          甲30倍以上股票.push(ele.name);
+          甲30倍以上一手占比.push(ele.一手占比);
+          甲30倍以上一手平均占比 += ele.一手占比;
 
-            if (temp.一手占比 < 1 && temp.甲组申购倍数 > 50 && temp.乙组申购倍数 > 100) {
-              甲30倍以上股票.push(key);
-              甲30倍以上一手占比.push(temp.一手占比);
-              甲30倍以上一手平均占比 += temp.一手占比;
-
-            } else if(temp.一手占比 < 1) {
-              甲30倍以下股票.push(key);
-              甲30倍以下一手占比.push(temp.一手占比);
-              甲30倍以下一手平均占比 += temp.一手占比;
-            }
-          }
+        } else if(ele.一手占比 < 1) {
+          甲30倍以下股票.push(ele.name);
+          甲30倍以下一手占比.push(ele.一手占比);
+          甲30倍以下一手平均占比 += ele.一手占比;
         }
       });
       this.甲30倍以上一手平均占比 = (甲30倍以上一手平均占比 / 甲30倍以上股票.length).toFixed(4);
@@ -220,7 +191,7 @@ export default {
     }
   },
   mounted() {
-    this.calcA();
+    // this.calcA();
     this.calcB();
   }
 }
