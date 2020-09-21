@@ -1,5 +1,8 @@
 // 新股配售数据 2020年
 import data2020 from "./配售数据2020";
+// import data2019 from "./配售数据2019";
+// import data2018 from "./配售数据2018";
+// import data2017 from "./配售数据2017";
 const data = [...data2020];
 
 function 中签数据格式化(data) {
@@ -165,6 +168,7 @@ data.forEach((ele, index, arr) => {
   );
   ele.公开申购金额 = parseInt(ele.甲组申购金额 + ele.乙组申购金额);
   ele.募资金额 = 招股股数 * ele.上限招股价;
+  ele.公开募资金额 = ele.募资金额 * ele.公开发售占比;
 
   arr[index] = ele;
 });
