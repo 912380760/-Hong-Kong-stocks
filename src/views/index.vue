@@ -525,7 +525,11 @@ export default {
       } else {
         一手中签率 = (this.甲30倍以下一手平均占比 * (公开发售手数 / 2)) / (甲组人数 * 一手申购人数占比);
       }
-      const 每手概率 = (公开发售手数 / 2 - 甲组人数 * 一手中签率) / (甲组申购金额 / 一手金额 - 甲组人数);
+      let 每手概率 = (公开发售手数 / 2 - 甲组人数 * 一手中签率) / (甲组申购金额 / 一手金额 - 甲组人数);
+      if (name === '云顶新耀-B') {
+        一手中签率 = (this.甲30倍以上一手平均占比 * (公开发售手数 / 2)) / (甲组人数 * 一手申购人数占比);
+        每手概率 = (公开发售手数 / 2 - 甲组人数 * 一手中签率) / (甲组申购金额 / 一手金额 - 甲组人数);
+      }
       data.甲组 = {};
       let 甲组稳中;
       data.listNumber.forEach((ele, index, arr) => {
@@ -618,7 +622,7 @@ export default {
           if (index === 4 || index === 5 || index === 6 || index === 8) {
             sums[index] = sums[index].toFixed(0) + '元';
           } else if(index === 1 || index === 3) {
-            sums[index] = sums[index].toFixed(2) + '手';
+            sums[index] = sums[index] + '手';
           }
         }
       });
