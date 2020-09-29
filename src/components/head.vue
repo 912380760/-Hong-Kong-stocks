@@ -32,7 +32,7 @@ export default {
           this.$router.push('/list')
           break;
         case '券商':
-          this.$router.push('/')
+          this.$router.push('/qs')
           break;
         case '文章':
           this.$router.push('/')
@@ -54,7 +54,7 @@ export default {
       case '/list':
         this.activeIndex = '申购记录';
         break;
-      case '券商':
+      case '/qs':
         this.activeIndex = '券商';
         break;
       case '文章':

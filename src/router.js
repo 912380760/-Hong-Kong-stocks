@@ -24,6 +24,11 @@ export default new Router({
         import(/* webpackChunkName: "list" */ "./views/list.vue"),
     },
     {
+      path: "/qs",
+      name: "qs",
+      component: () => import(/* webpackChunkName: "qs" */ "./views/qs.vue"),
+    },
+    {
       path: "/about",
       name: "about",
       // route level code-splitting
