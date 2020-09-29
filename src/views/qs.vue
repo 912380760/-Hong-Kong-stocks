@@ -12,7 +12,7 @@
           label="券商">
         <template slot-scope="scope">
           <div style="display:flex;line-height: 40px;">
-            <img :src="`/icon/${scope.row.name}.png`" style="width: 40px;margin-right: 10px;" alt="">
+            <img :src="`./icon/${scope.row.name}.png`" style="width: 40px;margin-right: 10px;" alt="">
             <span>
               {{ scope.row.name }}
             </span>
