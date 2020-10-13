@@ -2,6 +2,8 @@ const webpack = require("webpack");
 const path = require("path");
 const resolve = (dir) => require("path").join(__dirname, dir);
 
+const TerserPlugin = require("terser-webpack-plugin");
+
 module.exports = {
   // 禁止eslint
   lintOnSave: false,
@@ -15,18 +17,31 @@ module.exports = {
   // devServer: {
   //     proxy: 'http://106.52.151.73', // api地址
   // },
-  configureWebpack: {
-    plugins: [
+
+  configureWebpack: (config) => {
+    config.plugins.push(
       // 配置jquery为$和jQuery通配符
       new webpack.ProvidePlugin({
         $: "jquery",
         jQuery: "jquery",
         mapState: ["vuex", "mapState"],
         mapGetters: ["vuex", "mapGetters"],
-      }),
-    ],
+      })
+    );
+    // if (process.env.NODE_ENV === "production") {
+    //   new TerserPlugin({
+    //     cache: true,
+    //     parallel: true,
+    //     sourceMap: true,
+    //     terserOptions: {
+    //       compress: {
+    //         drop_debugger: true,
+    //         drop_console: true, //生产环境自动删除console
+    //       },
+    //     },
+    //   });
+    // }
   },
-
   pluginOptions: {
     "style-resources-loader": {
       preProcessor: "less",

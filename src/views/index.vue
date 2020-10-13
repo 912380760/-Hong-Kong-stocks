@@ -622,7 +622,7 @@ export default {
           if (index === 4 || index === 5 || index === 6 || index === 8) {
             sums[index] = sums[index].toFixed(0) + '元';
           } else if(index === 1 || index === 3) {
-            sums[index] = sums[index] + '手';
+            sums[index] = sums[index].toFixed(2) + '手';
           }
         }
       });
