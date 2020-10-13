@@ -1,0 +1,781 @@
+<html>
+<title>認購新股</title>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <script type="text/javascript" src="../../../js/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../js/ui.core.js"></script>
+  <script type="text/javascript" src="../../../js/ui.sortable.js"></script>
+  <script type="text/javascript" src="../../../js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="../../../js/font.js"></script>
+  <style type="text/css" media="all">
+      @import './portlets_Execution.css';
+      .w1
+      {
+          width: 310px;
+      }
+      .w2
+      {
+          width: 355px;
+      }
+      .w3
+      {
+          width: 230px;
+      }
+      .w4
+      {
+          width: 99%;
+      }
+      .ContentTitle
+      {
+          color: #3D3D3D;
+          border-bottom-style:solid;
+          border-bottom-color: #A1C7EF;
+          border-bottom-width:2px;
+          font-size:12px;
+      }
+  </style>
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+  <script>$( function() {
+    $( "#dialog-applyEStatement" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height: 200,
+      width: 500,
+      modal: true,
+      buttons: {
+        "提交": function() {
+          document.applyForm.submit();
+          $( this ).dialog( "close" );
+        },
+        "更改電子郵件": function() {
+          window.location.href = '../../../ContentPage/UserInfo/PInfo_ApplyEStatement.asp?PageID=1';
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+
+    $( "#dialog-applyIPO" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height: 200,
+      width: 500,
+      modal: true,
+      buttons: {
+        "申請豁免": function() {
+          $( this ).dialog( "close" );
+        },
+        "提交新股指示": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  } );
+
+  function ApplyEStatement() {
+    window.location.href = '../../../ContentPage/UserInfo/PInfo_ApplyEStatement.asp?iPageID=1&WebSite=&Popup=N&SCTYCode=9987';
+  }
+
+  function ApplyExchangeProduct()
+  {
+    if ($('#ExchangeProduct').attr('checked')) {
+      tmpCheck = false;
+
+      if ($('#OrderSide').val() == "") {
+        alert('閣下必須選擇付款方式後才能使用積分免手續費。');
+        tmpCheck = true;
+      } else if ($('#OrderSide').val() == "F" || $('#OrderSide').val() == "U") {
+        alert('全數及100%孖展並不涉及孖展融資手續費，因此不適用於此優惠。');
+        tmpCheck = true;
+      }
+      if (1500 > 800) {
+        alert('閣下剩餘積分不足以換領此服務。');
+        tmpCheck = true;
+      }
+      if ("C9988A" == "C005" && tmpCheck == false && 1==2) {
+        alert('此優惠不適用於本公司經紀，理財顧問及員工。');
+        tmpCheck = true;
+      }
+
+      if (tmpCheck) $('#ExchangeProduct').attr('checked', false);
+    }
+  }
+
+  var adminFee = 0;
+  function SubmitAction(){
+    if(document.inputForm.func.value == "Insert" || document.inputForm.func.value == "Modify")
+    {
+      //Modified by bernie 20091202
+      //if (document.inputForm.OrderSide.value == "N"){
+      //	alert("95%孖展不適用於網上申請。有關95%孖展申請事宜，請與閣下之經紀聯絡。");
+      //	return;
+      //}
+      //Modified by kit 20190605, request by Ryan [Advisory Order Checking]
+      if (document.getElementById("IsAdvisory").checked) {
+        alert('提示：獲得建議的指示需由您的經紀/交易員執行。如需進行交易，請聯絡您的經紀/交易員或致電客戶服務部熱線22776555查詢。');
+        return false;
+      }
+
+      if(document.inputForm.OrderQty.value == "") {
+        alert("請選擇認購股數。");
+        return;
+      }
+
+      if(document.getElementById('BQty').selectedIndex == 0) {
+        alert("請選擇認購股數。");
+        return;
+      }
+
+      if(document.inputForm.OrderSide.value == "") {
+        alert("請選擇認購方式。");
+        return;
+      }
+
+      document.inputForm.adminFee.value = adminFee;
+      if ( (document.inputForm.OrderQty.value * document.inputForm.OrderPrice.value * 1.01009)>5000000 ) {
+        var totalCost = prompt("請再次輸入所認購股數:", "");
+
+        if ( parseFloat(totalCost)==parseFloat(document.inputForm.OrderQty.value) ) {
+          /*
+          if (adminFee > 0) {
+            $('#dialog-applyIPO').dialog('open');
+          } else if(confirm('本人聲明已明白及同意本網頁有關新股認購的細則及條款') == true) {
+            document.inputForm.submit();
+          }
+          */
+          document.inputForm.submit();
+        }
+        else {
+          alert("所輸入股數與認購股數不正確!");
+          return;
+        }
+      }
+      else {
+        /*
+        if (adminFee > 0) {
+          $('#dialog-applyIPO').dialog('open');
+                  } else if(confirm('本人聲明已明白及同意本網頁有關新股認購的細則及條款') == true) {
+          document.inputForm.submit();
+        }
+        */
+        document.inputForm.submit();
+      }
+    }
+    else if(document.inputForm.func.value == "Cancel") {
+      if(confirm('確定取消新股認購申請？') == true) {
+        document.inputForm.OrderQty.value = 1;
+
+        if (document.inputForm.OrderSide.value != 'U') {
+          document.inputForm.OrderSide.value = 'F';
+        }
+
+        document.inputForm.submit();
+      }
+    }
+  }
+
+  function getIPO_Detail(tmpCode)
+  {
+    var url = "../../../getVal/IPO_new/getIPODetail.asp";
+    url += "?lang=ZH"
+    url += "&IPO=" + tmpCode;
+    url += "&sid=" + Math.random();
+
+    $.ajax({
+      url: url,
+      async: false,
+      type: "get",
+      success: function(data) {
+        var tmpArr = data.split("~:~");
+        $("#ZH_Name").html(tmpArr[1]);
+        $("#IPO_Description").html(tmpArr[2]);
+        $("#IPO_PromoDescription").html(tmpArr[3]);
+      },
+      error: function(xmlResponse) {
+        alert("Network is unstable, please try again later.");
+      }
+    });
+  }
+
+
+  function getIPO_PlanList(tmpCode, tmpQty, tmpOrderSide)
+  {
+    var url = "../../../getVal/IPO_new/getIPOPlanList.asp";
+    url += "?lang=ZH"
+    url += "&IPO=" + tmpCode;
+    url += "&Channel=C";
+    url += "&statementStatus=Y";
+    url += "&selectQty=" + tmpQty;
+    url += "&sid=" + Math.random();
+
+    if (tmpQty > 0) {
+      $('#OrderSide').find('option:not(:first)').remove();
+      $.ajax({
+        url: url,
+        async: false,
+        type: "get",
+        success: function(data) {
+          var tmpArr = data.split("~;~");
+          for (var i=0; i<tmpArr.length; i++) {
+            var tmpArrDetail = tmpArr[i].split("~:~");
+            var tmpPlanID = tmpArrDetail[0];
+            var tmpPlanName = tmpArrDetail[1];
+            if (tmpOrderSide == tmpPlanID) {
+              $('#OrderSide').append($("<option selected></option>").attr("value",tmpPlanID).text(tmpPlanName));
+            } else {
+              $('#OrderSide').append($("<option></option>").attr("value",tmpPlanID).text(tmpPlanName));
+            }
+          }
+          //$("#Plan_Name").html(tmpArr[1]);
+          //$("#IPO_Description").html(tmpArr[2]);
+        },
+        error: function(xmlResponse) {
+          alert("Network is unstable, please try again later.");
+        }
+      });
+    }
+  }
+
+  function addCommas(nStr)
+  {
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+      x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+  }
+
+  function selectQty(IPOInfo) {
+    $("#BQty").val(IPOInfo);
+    CalcMargin(IPOInfo);
+  }
+
+  function CalcMargin(IPOInfo){
+    if (IPOInfo.length != "") {
+      var IPOInfo_array=IPOInfo.split(",");
+      var BuyQty = IPOInfo_array[0]
+      var Amount = IPOInfo_array[1]
+      var InterestMargin = 0
+    } else {
+      var BuyQty = 0
+      var Amount = 0
+      var InterestMargin = 0
+    }
+    var interestDay = 5
+    var Price = 468
+
+    getIPO_PlanList('9987', BuyQty, document.inputForm.OrderSide.value);
+    if (document.inputForm.OrderSide.value == "") {
+      document.all["BuyQty"].innerHTML = "-";
+      document.all["Interest90"].innerHTML = "-";
+      document.all["AdminFee"].innerHTML = "-";
+      document.all["commission"].innerHTML = "-";
+      document.all["total"].innerHTML = "-";
+      document.all["Amount"].innerHTML = "-";
+    } else {
+      var url = "../../../getVal/IPO_new/getIPOPlanDetail.asp";
+      url += "?lang=ZH"
+      url += "&IPO=" + 9987;
+      url += "&Channel=C";
+      url += "&statementStatus=Y";
+      url += "&selectQty=" + BuyQty;
+      url += "&selectOrderSide=" + document.inputForm.OrderSide.value;
+      url += "&sid=" + Math.random();
+
+      $.ajax({
+        url: url,
+        async: false,
+        type: "get",
+        success: function(data) {
+          var tmpArr = data.split("~:~");
+          var eStatementStatus = "Y";
+          InterestMargin = tmpArr[2];
+          var commission = tmpArr[3];
+          var adminFee = tmpArr[4];
+          var MarginRatio = tmpArr[5];
+          if (InterestMargin == 0) {
+            var Margin = 0
+          } else {
+            var Margin = parseInt(Math.round(Amount * MarginRatio * InterestMargin / 100 * interestDay / 365 * 100))/100
+          }
+          document.all["Interest90"].innerHTML = InterestMargin + " %"
+
+          if (adminFee > 0) {
+            document.all["AdminFee"].innerHTML = "$ " + adminFee + "&nbsp;&nbsp;<a href='javascript:ApplyEStatement();' id='opener' style='color: blue;'>申請豁免</a>"
+          } else {
+            document.all["AdminFee"].innerHTML = "$ " + adminFee
+          }
+          document.all["commission"].innerHTML = "$ " + commission
+
+          if (MarginRatio > 0.0) {
+            if (MarginRatio == 1.0) {
+              if ((commission+adminFee) > 0) {
+                document.all["total"].innerHTML = "$ " + addCommas(parseInt(Math.round((parseInt(commission)+parseInt(adminFee)) * 100))/100)
+              } else {
+                document.all["total"].innerHTML = "不適用"
+              }
+            } else {
+              var holdMoney = Math.round(Math.round((Amount * 100) * (1.0 - parseFloat(MarginRatio)) * 10) / 10) / 100;
+              //alert(holdMoney)
+              document.all["total"].innerHTML = "$ " + addCommas(parseInt(Math.round((parseFloat(holdMoney)+parseFloat(commission)+parseFloat(adminFee)) * 100))/100) + " (另加利息約 $ " + addCommas(parseInt(Math.round(Margin*100))/100) + ")"
+            }
+          } else {
+            document.all["total"].innerHTML = "$ " + addCommas(parseInt(Math.round((parseFloat(Amount)+parseFloat(commission)+parseFloat(adminFee)) * 100))/100)
+          }
+        },
+        error: function(xmlResponse) {
+          alert("Network is unstable, please try again later.");
+        }
+      });
+      document.all["Amount"].innerHTML = addCommas(parseInt(Math.round(Amount * 100))/100)
+      document.inputForm.adminFee.value = adminFee;
+    }
+    if (BuyQty > 0) {
+      document.all["BuyQty"].innerHTML = addCommas(parseInt(Math.round(BuyQty * 100))/100)
+    }
+    document.inputForm.OrderQty.value = BuyQty;
+  }
+  </script>
+</head>
+<body leftmargin="2" topmargin="2" marginwidth="2" marginheight="2" onload="CalcMargin('');">
+
+<div class="container">
+  <table id="columns" cellpadding="0" cellspacing="0" width=100% height=98%>
+    <tr>
+      <td valign=top>
+        <div class="column w1" id='c1'>
+
+          <div class="portlet" id="1">
+            <div class="portlet-header">認購新股</div>
+            <div class="portlet-content">
+              <table width=96% border=0 cellspacing=0 style="font-size:12px">
+                <tr height=20><td width=80>股票</td><td width=70%>9987</td></tr>
+                <tr height=20><td>招股價</td><td>$ 468.00</td></tr>
+                <tr height=20><td>股份數目</td><td id="BuyQty">0</td></tr>
+                <tr height=20><td>手續費</td><td id=commission>$ 0</td></tr>
+                <tr height=20><td style="color:red;">行政費</td><td id=AdminFee style="color:red;">$ 0</td></tr>
+                <tr height=20><td>孖展利率</td><td id=Interest90>0 %</td></tr>
+                <tr height=20><td>總數</td><td id=Amount>$ 0</td></tr>
+                <tr height=20><td>需存入金額</td><td id=total>$ 0</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="portlet" id="2">
+            <div class="portlet-header">資訊</div>
+            <div class="portlet-content">
+              <table width=96% border=0 cellspacing=0 style="font-size:12px">
+                <tr height=35><td width=60>股票名稱</td><td>Yum China Holdings, Inc.</td></tr>
+                <tr height=35><td>中文名稱</td><td id="ZH_Name">&nbsp;</td></tr>
+                <tr height=20><td>交易單位</td><td>50</td></tr>
+                <tr height=20><td>價格</td><td>$ 468</td></tr>
+                <tr height=20><td>截止日期</td><td>2020年9月4日&nbsp;&nbsp;9:30 AM</td></tr>
+                <tr height=20><td>利息日數</td><td>5</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </td><td>
+      <div class="column w2" id='c2'>
+
+        <div class="portlet" id="3">
+          <div class="portlet-header" style="background: #ffa3a3;">新股 (9987) 認購詳情</div>
+          <div class="portlet-content">
+            <table border=0 cellspacing=0 width=96% height=25 style="font-size: 12px">
+              <tr><td valign=top>招股價: $ 468.000&nbsp;認購數量: 50&nbsp;付款方法: 100% 孖展</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="portlet" id="3">
+          <div class="portlet-header">新股輸入</div>
+          <div class="portlet-content">
+            <form action=InputIPO.asp method=post name=applyForm>
+              <input type=hidden name=func value=ApplyEStatement>
+              <input type=hidden name=WebSite value=>
+              <input type=hidden name=Popup value=N>
+              <input type=hidden name=SCTYCode value=9987>
+            </form>
+            <form action=InputIPOAction.asp method=post name=inputForm onSubmit="return false">
+              <input type=hidden name=func value=Insert>
+              <input type=hidden name=WebSite value=>
+              <input type=hidden name=Popup value=N>
+              <input type=hidden name=SCTYCode value=9987>
+              <input type=hidden name=OrderPrice value=468>
+              <input type=hidden name=adminFee value="">
+              <input type=hidden name=OrderQty value="">
+              <table width=96% style="font-size:12px" border=0 cellspacing=0>
+                <tr height=20><td width=60>股票</td><td>9987</td></tr>
+                <tr height=20><td>招股價</td><td>468</td></tr>
+                <tr height=23><td>數量</td><td>
+
+                  <select name=BQty id=BQty onChange="CalcMargin(this.value)" style="font-size: 12px">
+                    <option value="">請選擇股數</option>
+
+                    <option value="50,23635.8">50</option>
+
+                    <option value="100,47271.6">100</option>
+
+                    <option value="150,70907.41">150</option>
+
+                    <option value="200,94543.21">200</option>
+
+                    <option value="250,118179.01">250</option>
+
+                    <option value="300,141814.81">300</option>
+
+                    <option value="350,165450.61">350</option>
+
+                    <option value="400,189086.41">400</option>
+
+                    <option value="450,212722.22">450</option>
+
+                    <option value="500,236358.02">500</option>
+
+                    <option value="600,283629.62">600</option>
+
+                    <option value="700,330901.23">700</option>
+
+                    <option value="800,378172.83">800</option>
+
+                    <option value="900,425444.43">900</option>
+
+                    <option value="1000,472716.04">1,000</option>
+
+                    <option value="1500,709074.05">1,500</option>
+
+                    <option value="2000,945432.07">2,000</option>
+
+                    <option value="2500,1181790.09">2,500</option>
+
+                    <option value="3000,1418148.11">3,000</option>
+
+                    <option value="3500,1654506.13">3,500</option>
+
+                    <option value="4000,1890864.14">4,000</option>
+
+                    <option value="4500,2127222.16">4,500</option>
+
+                    <option value="5000,2363580.18">5,000</option>
+
+                    <option value="6000,2836296.22">6,000</option>
+
+                    <option value="7000,3309012.25">7,000</option>
+
+                    <option value="8000,3781728.29">8,000</option>
+
+                    <option value="9000,4254444.32">9,000</option>
+
+                    <option value="10000,4727160.36">10,000</option>
+
+                    <option value="20000,9454320.72">20,000</option>
+
+                    <option value="40000,18908641.44">40,000</option>
+
+                    <option value="60000,28362962.16">60,000</option>
+
+                    <option value="80000,37817282.88">80,000</option>
+
+                    <option value="100000,47271603.6">100,000</option>
+
+                    <option value="200000,94543207.2">200,000</option>
+
+                    <option value="300000,141814810.8">300,000</option>
+
+                    <option value="400000,189086414.4">400,000</option>
+
+                    <option value="500000,236358018">500,000</option>
+
+                    <option value="600000,283629621.6">600,000</option>
+
+                    <option value="700000,330901225.2">700,000</option>
+
+                    <option value="838250,396254217.18">838,250</option>
+
+                  </select></td></tr>
+                <tr height=23><td>付款方法</td><td>
+                  <select name=OrderSide id=OrderSide style="font-size: 12px" onChange="CalcMargin(document.inputForm.BQty.value)">
+                    <option value=''>請選擇付款方式</option>
+                  </select></td></tr>
+
+                <tr height=23><td>用積分免手續費</td><td>
+                  <input type="checkbox" name="ExchangeProduct" id="ExchangeProduct" value="153" onchange="ApplyExchangeProduct();" >
+                  <span style="vertical-align: top;">1,500
+													<span style="vertical-align: top;color: red;">(剩餘積分: 800)</span>
+												</span>
+                  <input type="hidden" name="ExchangeProduct_Point" value="1500">
+                  <input type="hidden" name="ExchangeProduct_Price" value="100">
+                </td></tr>
+
+                <tr height=23><td>建議</td><td>
+                  <input type="checkbox" name="IsAdvisory" id="IsAdvisory" value="T">
+                </td></tr>
+
+                <tr><td>&nbsp;</td><td></tr>
+                <tr><td colspan=2 align=center>
+                  <input type=button style="font-size: 12px;border-style:solid;border-width:1px;padding: 1px;" value="更改申請" onClick="document.inputForm.func.value = 'Modify'; SubmitAction();" >
+                  &nbsp;
+                  <input type=button style="font-size: 12px;border-style:solid;border-width:1px;padding: 1px;" value="取消申請" onClick="document.inputForm.func.value = 'Cancel'; SubmitAction();" >
+                  &nbsp;
+                  <input type=button style="font-size: 12px;border-style:solid;border-width:1px;padding: 1px;" value="返回主頁" onClick="document.location='ListIPO.asp?WebSite=&Popup=N'">
+                </td></tr>
+
+              </table>
+            </form>
+          </div>
+        </div>
+
+        <div class="portlet" id="4">
+          <div class="portlet-header">認購優惠</div>
+          <div class="portlet-content">
+            <table border=0 cellspacing=0 width=96% height="106" style="font-size: 12px">
+              <tr><td valign=top>
+
+                <div id="IPO_PromoDescription">
+                  &nbsp;
+                </div>
+                <!--<p>- 以上資料可予變動，並以招股書所載為準。</p>-->
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </td><td width=230 rowspan=2>
+      <div class="column w3" id='c3'>
+
+        <div class="portlet" id="5">
+          <div class="portlet-header">孖展列表</div>
+          <div class="portlet-content">
+            <div style="width:220px;height: 440px;overflow:auto;">
+              <table border=1 cellspacing=0 width=200 style="font-size: 12px">
+
+                <tr><td align=center class="ContentTitle" style="padding-top: 3px;">股份數目</td><td align=center class="ContentTitle" style="padding-top: 3px;">總數</td></tr>
+                <tr><td height=3 colspan=2></td></tr>
+
+                <tr id="23635.8" onClick="selectQty('50,23635.8')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>50&nbsp;</td>
+                  <td align=left>&nbsp;$ 23,635.80</td>
+                </tr>
+
+                <tr id="47271.6" onClick="selectQty('100,47271.6')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>100&nbsp;</td>
+                  <td align=left>&nbsp;$ 47,271.60</td>
+                </tr>
+
+                <tr id="70907.41" onClick="selectQty('150,70907.41')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>150&nbsp;</td>
+                  <td align=left>&nbsp;$ 70,907.41</td>
+                </tr>
+
+                <tr id="94543.21" onClick="selectQty('200,94543.21')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>200&nbsp;</td>
+                  <td align=left>&nbsp;$ 94,543.21</td>
+                </tr>
+
+                <tr id="118179.01" onClick="selectQty('250,118179.01')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>250&nbsp;</td>
+                  <td align=left>&nbsp;$ 118,179.01</td>
+                </tr>
+
+                <tr id="141814.81" onClick="selectQty('300,141814.81')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>300&nbsp;</td>
+                  <td align=left>&nbsp;$ 141,814.81</td>
+                </tr>
+
+                <tr id="165450.61" onClick="selectQty('350,165450.61')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>350&nbsp;</td>
+                  <td align=left>&nbsp;$ 165,450.61</td>
+                </tr>
+
+                <tr id="189086.41" onClick="selectQty('400,189086.41')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>400&nbsp;</td>
+                  <td align=left>&nbsp;$ 189,086.41</td>
+                </tr>
+
+                <tr id="212722.22" onClick="selectQty('450,212722.22')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>450&nbsp;</td>
+                  <td align=left>&nbsp;$ 212,722.22</td>
+                </tr>
+
+                <tr id="236358.02" onClick="selectQty('500,236358.02')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>500&nbsp;</td>
+                  <td align=left>&nbsp;$ 236,358.02</td>
+                </tr>
+
+                <tr id="283629.62" onClick="selectQty('600,283629.62')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>600&nbsp;</td>
+                  <td align=left>&nbsp;$ 283,629.62</td>
+                </tr>
+
+                <tr id="330901.23" onClick="selectQty('700,330901.23')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>700&nbsp;</td>
+                  <td align=left>&nbsp;$ 330,901.23</td>
+                </tr>
+
+                <tr id="378172.83" onClick="selectQty('800,378172.83')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>800&nbsp;</td>
+                  <td align=left>&nbsp;$ 378,172.83</td>
+                </tr>
+
+                <tr id="425444.43" onClick="selectQty('900,425444.43')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>900&nbsp;</td>
+                  <td align=left>&nbsp;$ 425,444.43</td>
+                </tr>
+
+                <tr id="472716.04" onClick="selectQty('1000,472716.04')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>1,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 472,716.04</td>
+                </tr>
+
+                <tr id="709074.05" onClick="selectQty('1500,709074.05')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>1,500&nbsp;</td>
+                  <td align=left>&nbsp;$ 709,074.05</td>
+                </tr>
+
+                <tr id="945432.07" onClick="selectQty('2000,945432.07')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>2,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 945,432.07</td>
+                </tr>
+
+                <tr id="1181790.09" onClick="selectQty('2500,1181790.09')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>2,500&nbsp;</td>
+                  <td align=left>&nbsp;$ 1,181,790.09</td>
+                </tr>
+
+                <tr id="1418148.11" onClick="selectQty('3000,1418148.11')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>3,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 1,418,148.11</td>
+                </tr>
+
+                <tr id="1654506.13" onClick="selectQty('3500,1654506.13')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>3,500&nbsp;</td>
+                  <td align=left>&nbsp;$ 1,654,506.13</td>
+                </tr>
+
+                <tr id="1890864.14" onClick="selectQty('4000,1890864.14')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>4,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 1,890,864.14</td>
+                </tr>
+
+                <tr id="2127222.16" onClick="selectQty('4500,2127222.16')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>4,500&nbsp;</td>
+                  <td align=left>&nbsp;$ 2,127,222.16</td>
+                </tr>
+
+                <tr id="2363580.18" onClick="selectQty('5000,2363580.18')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>5,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 2,363,580.18</td>
+                </tr>
+
+                <tr id="2836296.22" onClick="selectQty('6000,2836296.22')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>6,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 2,836,296.22</td>
+                </tr>
+
+                <tr id="3309012.25" onClick="selectQty('7000,3309012.25')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>7,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 3,309,012.25</td>
+                </tr>
+
+                <tr id="3781728.29" onClick="selectQty('8000,3781728.29')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>8,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 3,781,728.29</td>
+                </tr>
+
+                <tr id="4254444.32" onClick="selectQty('9000,4254444.32')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>9,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 4,254,444.32</td>
+                </tr>
+
+                <tr id="4727160.36" onClick="selectQty('10000,4727160.36')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>10,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 4,727,160.36</td>
+                </tr>
+
+                <tr id="9454320.72" onClick="selectQty('20000,9454320.72')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>20,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 9,454,320.72</td>
+                </tr>
+
+                <tr id="18908641.44" onClick="selectQty('40000,18908641.44')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>40,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 18,908,641.44</td>
+                </tr>
+
+                <tr id="28362962.16" onClick="selectQty('60000,28362962.16')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>60,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 28,362,962.16</td>
+                </tr>
+
+                <tr id="37817282.88" onClick="selectQty('80000,37817282.88')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>80,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 37,817,282.88</td>
+                </tr>
+
+                <tr id="47271603.6" onClick="selectQty('100000,47271603.6')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>100,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 47,271,603.60</td>
+                </tr>
+
+                <tr id="94543207.2" onClick="selectQty('200000,94543207.2')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>200,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 94,543,207.20</td>
+                </tr>
+
+                <tr id="141814810.8" onClick="selectQty('300000,141814810.8')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>300,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 141,814,810.80</td>
+                </tr>
+
+                <tr id="189086414.4" onClick="selectQty('400000,189086414.4')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>400,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 189,086,414.40</td>
+                </tr>
+
+                <tr id="236358018" onClick="selectQty('500000,236358018')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>500,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 236,358,018.00</td>
+                </tr>
+
+                <tr id="283629621.6" onClick="selectQty('600000,283629621.6')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>600,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 283,629,621.60</td>
+                </tr>
+
+                <tr id="330901225.2" onClick="selectQty('700000,330901225.2')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>700,000&nbsp;</td>
+                  <td align=left>&nbsp;$ 330,901,225.20</td>
+                </tr>
+
+                <tr id="396254217.18" onClick="selectQty('838250,396254217.18')" style='cursor:hand' onMouseOver="this.bgColor='#FFFFC4';" onMouseOut="this.bgColor=''">
+                  <td align=right width=80>838,250&nbsp;</td>
+                  <td align=left>&nbsp;$ 396,254,217.18</td>
+                </tr>
+
+              </table></div>
+          </div>
+        </div>
+    </td>
+    </tr>
+    <tr><td colspan=2 valign=top width=100%>
+      <div class="column w4" id='c4' valign=top>
+
+        <div class="portlet" id="6">
+          <div class="portlet-header">公司簡介</div>
+          <div class="portlet-content">
+            <div id="IPO_Description" style="width:99%; height: 55px; font-size: 12px; overflow:auto;">
+              &nbsp;
+            </div>
+            <script>getIPO_Detail('9987');</script>
+          </div>
+        </div>
+      </div>
+    </td></tr>
+  </table><!-- /#columns -->
+</div>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+* {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+body { margin: 3px; }
+
+#footer {
+    clear: both;
+    color: #443;
+    border-top: 1px dashed #998;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin: 0 5px;
+    padding: 5px 0;
+    text-align: center;
+    font-size: 12px;
+}
+
+#footer a {
+    color: #443;
+}
+
+.column {
+    padding-bottom: 4px;
+    vertical-align: top;
+}
+#columns td {
+    padding: 0 3px;
+    vertical-align: top;
+}
+a {
+    color: #886;
+    font-weight: bold;
+    text-decoration: none;
+}
+a:hover {
+    color: #443;
+    font-weight: bold;
+    text-decoration: none;
+}
+.portlet
+{
+    -moz-border-radius: 4px/*{cornerRadius}*/; -webkit-border-radius: 4px/*{cornerRadius}*/; border-radius: 4px/*{cornerRadius}*/;
+    border: 1px solid #aaaaaa/*{borderColorContent}*/; background: #ffffff/*{bgColorContent}*/ 50%/*{bgContentXPos}*/ 50%/*{bgContentYPos}*/ repeat-x/*{bgContentRepeat}*/; color: #222222/*{fcContent}*/;
+    margin: 0 1em 1em 0;
+    font-size: 12px;
+    border-color: #665 #665 #665 #665;
+    border-style: solid;
+    border-width: 1px;
+    margin: 0 0 5px;
+}
+.portlet-header
+{
+    cursor: move;
+    background: #CDE5FF;
+    font-weight: bold;
+    height: 14px;
+    padding: 4px 4px;
+}
+.portlet-header .ui-icon
+{
+    float: right;
+}
+.portlet-content
+{
+    border-top: 1px solid #998;
+    padding: 3px 4px;
+}
+.ui-sortable-placeholder
+{
+    border: 1px dotted black;
+    visibility: visible !important;
+    height: 50px !important;
+}
+.ui-sortable-placeholder *
+{
+    visibility: hidden;
+}
+.ui-icon ui-icon-plusthick
+{
+    cursor:pointer;
+}
+.demo-description{clear:both;}
+
+hr {
+    border: 1px solid #000;
+    width: 95%;
+    color: #5678EF;
+    background-color: #5678EF;
+    height: 2px;
+}
+img {
+    background: #CDE5FF;
+}
