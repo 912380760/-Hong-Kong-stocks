@@ -5,7 +5,7 @@
     <el-tabs v-model="activeName" tab-position="left" @tab-click="handleClick" style="height: 1190px;">
       <el-tab-pane v-for="(item, index) in data2" :key="item.name" :label="item.name" :name="index.toString()">
         <div style="display:flex; padding-right: 10px;border: 1px solid #ebebeb;border-radius: 3px;margin-bottom: 20px;">
-          <el-form ref="item" :model="item" label-width="120px" style="width: 50%;">
+          <el-form ref="item" :model="item" label-width="100px" style="width: 50%;">
             <el-form-item label="中签率">
               <el-tag style="margin-right: 20px;">一手中签率: {{ (一手中签率 * 100).toFixed(2) + '%' }}</el-tag>
               <el-tag style="margin-right: 20px;" v-if="甲组稳中">甲组稳中: {{甲组稳中.手数}}手 / {{ (甲组稳中.预测中签率 * 100).toFixed(2) + '%' }}</el-tag>
@@ -13,13 +13,13 @@
             </el-form-item>
             <el-form-item label="申购人数">
               <div style="display:flex;">
-                <el-slider v-model="甲组人数" :max="1000000" :step="10000" :format-tooltip="formatTooltip3" :marks="marks2" style="flex: 1;"></el-slider>
+                <el-slider v-model="甲组人数" :max="2000000" :step="10000" :format-tooltip="formatTooltip3" :marks="marks2" style="flex: 1;"></el-slider>
                 <el-tag style="margin-left: 10px;width: 60px;">{{ (甲组人数 / 10000).toFixed(0) + '万' }}</el-tag>
               </div>
             </el-form-item>
             <el-form-item label="申购总金额" >
               <div style="display:flex;">
-                <el-slider v-model="申购总金额" :max="1000000000000" :step="1000000000" :format-tooltip="formatTooltip2" :marks="marks3" style="flex: 1;"></el-slider>
+                <el-slider v-model="申购总金额" :max="2000000000000" :step="1000000000" :format-tooltip="formatTooltip2" :marks="marks3" style="flex: 1;"></el-slider>
                 <el-tag style="margin-left: 10px;width: 60px;">{{ (申购总金额 / 100000000).toFixed(0) + '亿' }}</el-tag>
               </div>
             </el-form-item>
@@ -245,17 +245,15 @@ export default {
       },
       marks2: {
         100000: '10万',
-        300000: '30万',
         500000: '50万',
-        700000: '70万',
-        900000: '90万',
+        1000000: '100万',
+        1500000: '150万',
       },
       marks3: {
         100000000000: '1千亿',
-        300000000000: '3千亿',
         500000000000: '5千亿',
-        700000000000: '7千亿',
-        900000000000: '9千亿',
+        1000000000000: '10千亿',
+        1500000000000: '15千亿',
       },
       myChart: null,
     }
@@ -520,7 +518,7 @@ export default {
       let 一手中签率;
       // 暂时打8折,最近一手分配比例较低
       console.log(name + ':' + (甲组申购金额 / (公开发售手数 * 上限招股价 * 每手股数 /2)).toFixed(0) + '倍')
-      if(甲组申购金额 / (公开发售手数 * 上限招股价 * 每手股数 /2)  > 50) {
+      if(甲组申购金额 / (公开发售手数 * 上限招股价 * 每手股数 /2)  > 30) {
         一手中签率 = (this.甲30倍以上一手平均占比 * 0.8 * (公开发售手数 / 2)) / (甲组人数 * 一手申购人数占比);
       } else {
         一手中签率 = (this.甲30倍以下一手平均占比 * (公开发售手数 / 2)) / (甲组人数 * 一手申购人数占比);
