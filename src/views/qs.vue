@@ -103,7 +103,7 @@
  import browser from '@/assets/brokerList';
 
  // 券商排序
- let qsArr = ['华泰', '老虎', '辉立', '富途', '富昌', '华赢', '盈路', '易昇', '雪盈', '华盛通', '尊嘉', '长桥', '友信', '佳兆业', '阿尔法', '艾德'];
+ let qsArr = ['华泰', '恒大', '老虎', '辉立', '富途', '富昌', '华赢', '易昇', '雪盈', '华盛通', '尊嘉', '友信', '阿尔法', '艾德' ];
  let qsList = [];
  qsArr.forEach(ele => {
    qsList.push(Object.assign({
