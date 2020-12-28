@@ -361,6 +361,18 @@ export default {
     }
   },
   mounted() {
+    console.log(this.brokerObj);
+    let 正收益数组 = [], 负收益数组 = [];
+    this.brokerObj["打新记录"].forEach(ele => {
+      if (new Date(ele.上市日期) < Date.now()) {
+        if (ele.盈亏 > 0) {
+          正收益数组.push(ele)
+        } else {
+          负收益数组.push(ele)
+        }
+      }
+    });
+    console.log(正收益数组, 负收益数组)
     this.calc();
   }
 }

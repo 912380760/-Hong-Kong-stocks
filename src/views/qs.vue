@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      排名根据个人体验,综合考虑APP体验、额度、融资倍数、暗盘、一手融资、佣金等. 以下所有券商是目前还在使用的,不定期更新
+      排名根据个人体验,综合考虑APP体验、额度、融资倍数、暗盘、一手融资、佣金等.
     </p>
     <el-table
         :data="qsList"
@@ -11,7 +11,7 @@
           prop="name"
           label="券商">
         <template slot-scope="scope">
-          <div style="display:flex;line-height: 40px;">
+          <div style="display:flex;line-height: 40px;width: 120px;">
             <img :src="`./icon/${scope.row.name}.png`" style="width: 40px;margin-right: 10px;" alt="">
             <span>
               {{ scope.row.name }}
@@ -103,7 +103,8 @@
  import browser from '@/assets/brokerList';
 
  // 券商排序
- let qsArr = ['华泰', '恒大', '老虎', '辉立', '富途', '富昌', '华赢', '易昇', '雪盈', '华盛通', '尊嘉', '友信', '阿尔法', '艾德' ];
+ let qsArr = ['华泰', '恒大', '老虎', '辉立', '富途', '富昌', '耀才', '华赢', '易昇', '雪盈', '华盛通', '尊嘉', '友信', '阿尔法', '艾德', '有鱼', '青石', '长桥', '利弗莫尔', '玖富', '东财', '方德', '第一上海', '佳兆业', '盈路'];
+ console.log(qsArr.length)
  let qsList = [];
  qsArr.forEach(ele => {
    qsList.push(Object.assign({
