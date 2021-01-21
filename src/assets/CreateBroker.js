@@ -3,20 +3,21 @@ import brokerList from "./brokerList";
 // 创建券商,记录券商打新记录和收益
 class CreateBroker {
   constructor(data) {
-    this.中签费 = 0.010077;
     this.打新记录 = data;
-    this.brokerList = brokerList;
-
     this.打新记录.forEach((ele, index, arr) => {
       arr[index] = this.计算申购成本和盈利(ele);
     });
+    console.log(this.打新记录);
     this.打新记录.forEach((ele, index, arr) => {
       arr[index] = this.合计(ele);
     });
+    console.log(this.打新记录);
   }
+  中签费 = 0.010077;
+  brokerList = brokerList;
 
   计算申购成本和盈利(data) {
-    const { 上限招股价, 每手股数, 记息天数, 中签定价 } = data;
+    const { 一手认购最低价, 每手股数, 记息天数, 中签定价 } = data;
     if (data.list) {
       data.list.forEach((ele, index) => {
         const {
@@ -33,19 +34,10 @@ class CreateBroker {
         let 融资成本 = 0;
 
         if (["老虎", "雪盈", "赢路", "长桥"].indexOf(券商) > -1) {
-          融资成本 =
-            ((上限招股价 * 每手股数 * (1 + this.中签费) * 打新手数 * 融资利率) /
-              365) *
-            记息天数;
+          融资成本 = ((一手认购最低价 * 打新手数 * 融资利率) / 365) * 记息天数;
         } else {
           融资成本 =
-            ((上限招股价 *
-              每手股数 *
-              (1 + this.中签费) *
-              打新手数 *
-              融资比例 *
-              融资利率) /
-              365) *
+            ((一手认购最低价 * 打新手数 * 融资比例 * 融资利率) / 365) *
             记息天数;
         }
         let 认购手续费;
@@ -84,16 +76,11 @@ class CreateBroker {
 
         // 计算资金占用
         data.list[index].资金占用 =
-          每手股数 *
-            上限招股价 *
-            (1 + this.中签费) *
-            打新手数 *
-            (1 - 融资比例) +
+          一手认购最低价 * 打新手数 * (1 - 融资比例) +
           data.list[index].申购成本;
 
         data.list[index].申购金额 =
-          每手股数 * 上限招股价 * (1 + this.中签费) * 打新手数 +
-          data.list[index].申购成本;
+          一手认购最低价 * 打新手数 + data.list[index].申购成本;
 
         // 百分比收益
         if (data.list[index].资金占用 > 0) {
@@ -134,7 +121,7 @@ class CreateBroker {
   }
 
   合计(data) {
-    const { 每手股数, 上限招股价 } = data;
+    const { 每手股数, 一手认购最低价 } = data;
     let 盈亏 = 0,
       资金占用 = 0,
       手数 = 0,
@@ -156,9 +143,7 @@ class CreateBroker {
     data.中签数 = 中签数;
     data.申购成本 = 申购成本;
     data.百分比收益 = 盈亏 / 资金占用;
-    data.融资倍数 =
-      (手数 * 每手股数 * 上限招股价 * (1 + this.中签费)) /
-      (资金占用 - 申购成本);
+    data.融资倍数 = (手数 * 一手认购最低价) / (资金占用 - 申购成本);
     data.申购金额 = 申购金额;
     return data;
   }
