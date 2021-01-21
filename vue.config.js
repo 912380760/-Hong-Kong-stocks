@@ -14,9 +14,9 @@ module.exports = {
     process.env.NODE_ENV === "production" ? "/-Hong-Kong-stocks/" : "/",
 
   // 反向代理
-  // devServer: {
-  //     proxy: 'http://106.52.151.73', // api地址
-  // },
+  devServer: {
+    proxy: "https://www.xinguyufu.cn", // api地址
+  },
 
   configureWebpack: (config) => {
     config.plugins.push(

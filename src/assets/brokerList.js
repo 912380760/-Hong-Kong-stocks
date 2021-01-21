@@ -12,7 +12,7 @@ let data = {
     美股打新: 1, // 0不支持 1支持
 
     港股平台费: 15,
-    现金认购费: 0,
+    现金认购费: 50,
     融资认购费: 100,
     最低佣金: 0,
     佣金: 0.00029,
@@ -102,7 +102,7 @@ let data = {
     软件下载:
       "https://android.myapp.com/myapp/detail.htm?apkName=com.yxzq.stock&ADTAG=mobile",
     融资倍数: "10-15倍",
-    融资额度: 1, // 0少 1一般 2充足
+    融资额度: 2, // 0少 1一般 2充足
     融资一手: 1, // 0不支持 1支持
     暗盘: 1, // 0不支持 1支持
     佣金说明: "万5最低12",
@@ -141,7 +141,7 @@ let data = {
       "https://hkkhapp.eastmoney.com/Registnew/Step1?versionmodel=H5&returl=hkreturl&channelname=12&ad_id=zwtg_kh_act_xct_03_02_04_0",
     软件下载: "https://emsec.eastmoney.com/download.html",
     融资倍数: "10-20倍",
-    融资额度: 2, // 0少 1一般 2充足
+    融资额度: 1, // 0少 1一般 2充足
     融资一手: 0, // 0不支持 1支持
     暗盘: 1, // 0不支持 1支持
     佣金说明: "万3最低3",
@@ -238,7 +238,7 @@ let data = {
       "https://mobile.fdzq.com/app-h5/module/my_invite_share.html?broker=FDHongKong&invite_code=B1AET&activity_id=1009",
     软件下载: "https://www.fdzq.com/app/download.html",
     融资倍数: "10-20倍",
-    融资额度: 2, // 0少 1一般 2充足
+    融资额度: 1, // 0少 1一般 2充足
     融资一手: 1, // 0不支持 1支持
     暗盘: 1, // 0不支持 1支持
     佣金说明: "千2最低100",
@@ -246,8 +246,8 @@ let data = {
     美股打新: 0, // 0不支持 1支持
 
     港股平台费: 0,
-    现金认购费: 100,
-    融资认购费: 150,
+    现金认购费: 0,
+    融资认购费: 120,
     最低佣金: 100,
     佣金: 0.002,
     最低暗盘佣金: 100,
@@ -385,7 +385,7 @@ let data = {
     美股打新: 0, // 0不支持 1支持
 
     港股平台费: 0,
-    现金认购费: 0,
+    现金认购费: 100,
     融资认购费: 100,
     最低佣金: 79,
     佣金: 0.003,

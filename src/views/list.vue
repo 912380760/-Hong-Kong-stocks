@@ -374,6 +374,46 @@ export default {
     });
     console.log(正收益数组, 负收益数组)
     this.calc();
+
+    async function ajax() {
+      const fetchObj = await fetch("/fm/ipo/history", {
+        "headers": {
+          "accept": "application/x.fm.v1+json",
+          "accept-language": "zh-CN,zh;q=0.9",
+          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "sec-ch-ua": "\"Google Chrome\";v=\"87\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"87\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "x-requested-with": "XMLHttpRequest"
+        },
+        "referrer": "https://www.xinguyufu.cn/ipo/history",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "body": "page=1&size=200&header=1&paginate=1",
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "include"
+      })
+      const data = await fetchObj.json();
+      // download('data.json', JSON.stringify(data.data.history));
+      return data;
+    }
+    ajax();
+
+
+    function download(filename, text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
   }
 }
 </script>
