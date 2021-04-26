@@ -17,5 +17,11 @@ export default defineConfig({
         ws: true,
       }
     },
-  }
+  },
+  build: {
+    // 打包输出地址
+    outDir: 'docs',
+  },
+  // 静态资源服务
+  base: '/-Hong-Kong-stocks/'
 })

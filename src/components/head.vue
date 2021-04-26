@@ -16,55 +16,66 @@
 </template>
 
 <script>
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
+
 export default {
-  data() {
-    return {
-      activeIndex: '',
-    };
-  },
-  methods: {
-    handleSelect(key, keyPath) {
-      switch (key) {
-        case '首页':
-          this.$router.push('/')
+  name: 'head',
+  setup() {
+    let activeIndex = ref('');
+    const router = useRouter();
+    const route = useRoute();
+
+    // 监听路由改变头部tab值
+    watch(route, (now) => {
+      switch (now.path) {
+        case '/':
+          activeIndex.value = '首页';
           break;
-        case '申购记录':
-          this.$router.push('/list')
+        case '/list':
+          activeIndex.value = '申购记录';
           break;
-        case '券商':
-          this.$router.push('/qs')
+        case '/qs':
+          activeIndex.value = '券商';
           break;
         case '文章':
-          this.$router.push('/')
+          activeIndex.value = '文章';
           break;
         case '工具':
-          this.$router.push('/')
+          activeIndex.value = '工具';
           break;
       }
-      console.log(key, keyPath);
-    }
-  },
-  mounted() {
-    // 获取url判断路由,没有用$route,因为组件可能还没渲染完成
-    const routeName = window.location.pathname;
-    switch (routeName) {
-      case '/':
-        this.activeIndex = '首页';
-        break;
-      case '/list':
-        this.activeIndex = '申购记录';
-        break;
-      case '/qs':
-        this.activeIndex = '券商';
-        break;
-      case '文章':
-        this.activeIndex = '文章';
-        break;
-      case '工具':
-        this.activeIndex = '工具';
-        break;
+    });
+
+    /**
+     * 点击头部菜单跳转
+     * @param key
+     * @param keyPath
+     */
+    function handleSelect(key, keyPath) {
+      switch (key) {
+        case '首页':
+          router.push('/')
+          break;
+        case '申购记录':
+          router.push('/list')
+          break;
+        case '券商':
+          router.push('/qs')
+          break;
+        case '文章':
+          router.push('/')
+          break;
+        case '工具':
+          router.push('/')
+          break;
+      }
     }
 
+    return {
+      activeIndex,
+      handleSelect,
+    }
   }
 }
 </script>
