@@ -1,9 +1,9 @@
 // 新股配售数据 2020年
-import data2020 from "./配售数据2020";
-import data2019 from "./配售数据2019";
+import data2020 from "../assets/配售数据2020";
+// import data2019 from "../assets/配售数据2019";
 // import data2018 from "./配售数据2018";
 // import data2017 from "./配售数据2017";
-const data = [...data2020, ...data2019];
+const data = [...data2020];
 
 function 中签数据格式化(data) {
   let 甲组 = [],

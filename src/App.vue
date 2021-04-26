@@ -1,9 +1,14 @@
 <template>
-  <div id="app">
-    <myHead></myHead>
-    <router-view/>
-  </div>
+  <myHead></myHead>
+  <router-view></router-view>
 </template>
+
+<script setup>
+import myHead from './components/head.vue';
+
+// This starter template is using Vue 3 experimental <script setup> SFCs
+// Check out https://github.com/vuejs/rfcs/blob/script-setup-2/active-rfcs/0000-script-setup.md
+</script>
 
 <style lang="less">
 #app {
@@ -14,13 +19,3 @@
   margin: 0 auto;
 }
 </style>
-
-<script>
-import myHead from '@/components/head';
-export default {
-  name: 'app',
-  components: {
-    myHead,
-  }
-}
-</script>
