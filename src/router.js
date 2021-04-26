@@ -1,41 +1,43 @@
-import Vue from "vue";
-import Router from "vue-router";
+import { createWebHistory, createRouter } from "vue-router";
+import NProgress from 'nprogress'
+import "nprogress/nprogress.css";
 
-Vue.use(Router);
+const routes = [
+  {
+    path: '/',
+    name: 'index',
+    component: () => import("./views/index.vue"),
+  },
+  {
+    path: '/qs',
+    name: 'qs',
+    component: () => import("./views/qs.vue"),
+  },
+  {
+    path: '/list',
+    name: 'list',
+    component: () => import("./views/list.vue"),
+  },
+  // 配置404页面
+  {
+    path: "/:catchAll(.*)",
+    name: 'NotFound',
+    component: () => import("./views/404.vue"),
+  },
+];
 
-export default new Router({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: "*",
-      component: () => import(/* webpackChunkName: "404" */ "./views/404.vue"),
-    },
-    {
-      path: "/",
-      name: "index",
-      component: () =>
-        import(/* webpackChunkName: "index" */ "./views/index.vue"),
-    },
-    {
-      path: "/list",
-      name: "list",
-      component: () =>
-        import(/* webpackChunkName: "list" */ "./views/list.vue"),
-    },
-    {
-      path: "/qs",
-      name: "qs",
-      component: () => import(/* webpackChunkName: "qs" */ "./views/qs.vue"),
-    },
-    {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "about" */ "./views/About.vue"),
-    },
-  ],
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
 });
+
+// 配置页面加载过度条
+router.beforeEach((to, from, next) => {
+  NProgress.start();
+  next();
+});
+router.afterEach(() => {
+  NProgress.done();
+});
+
+export default router;
