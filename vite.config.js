@@ -23,5 +23,5 @@ export default defineConfig({
     outDir: 'docs',
   },
   // 静态资源服务
-  publicDir: '/-Hong-Kong-stocks/'
+  base: '/-Hong-Kong-stocks/'
 })
