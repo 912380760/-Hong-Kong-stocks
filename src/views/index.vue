@@ -173,6 +173,16 @@ import data from '../assets/stockList';
 import brokerList from "../assets/brokerList";
 import { 获取IPO数据, 合并IPO数据, 计算打新记录, 历史收益曲线计算 } from '../utils/CreateBroker'
 import { createChart } from '../utils/createChart'
+import ajax from "axios";
+
+// new Promise(function(resolve, reject) {
+//   setTimeout(() => {
+//     throw 'Uncaught Exception!';
+//   }, 1000);
+// }).catch(e => {
+//   console.log(e)
+// })
+
 
 export default {
   name: 'index',
@@ -196,6 +206,96 @@ export default {
         收益利润,
       } = 历史收益曲线计算(brokerObj.打新记录);
       createChart('main', 收益日期, 收益利润, 'line', '收益');
+
+      const temp = brokerObj.打新记录.filter(ele => {
+        if(ele.盈亏 > 3000) {
+          return ele
+        }
+      });
+
+      const IPO中签详情2018 = await ajax({
+        url: '/data/2018IPO中签详情.json',
+        method: 'get',
+      }).then(res => res.data);
+      console.log(IPO中签详情2018);
+
+      const IPO中签详情2019 = await ajax({
+        url: '/data/2019IPO中签详情.json',
+        method: 'get',
+      }).then(res => res.data);
+      console.log(IPO中签详情2019);
+
+      const IPO中签详情2020 = await ajax({
+        url: '/data/2020IPO中签详情.json',
+        method: 'get',
+      }).then(res => res.data);
+      console.log(IPO中签详情2020);
+
+      const IPO中签详情2021 = await ajax({
+        url: '/data/2021IPO中签详情.json',
+        method: 'get',
+      }).then(res => res.data);
+      console.log(IPO中签详情2021);
+
+      console.log(IPO中签详情2021.concat(IPO中签详情2020).concat(IPO中签详情2019).concat(IPO中签详情2018))
+
+      const keyMap = {
+        claw_back: '回拨比例',
+        codes_rate: '一手中签率',
+        group: '板块', // 0创业板 1主板
+        head_hammer: '顶头槌',
+        ipo_pricing: '定价',
+        list: '配售结果',
+        lot: '每手股数',
+        name: '股票名称',
+        num: '申购人数',
+        price_ceiling: '上限定价',
+        price_floor: '下限定价',
+        rate: '',
+        rlink: '配售结果中文链接',
+        slink: '配售结果英文链接',
+        subscribed: '认购倍数',
+        sz: '一手价格',
+        px_close_rate: '首日收盘涨幅',
+        green_shoe: '绿鞋机制',
+        issue_date: '上市时间',
+        expiration_date: '申购结束时间',
+        create_at: '开始申购时间'
+      }
+
+
+      // 回拨比例 claw_back: "28.0000"
+      // 一手中签率 codes_rate: "20.0000"
+      // group: "1" // 0创业板 1主板
+      // 顶头槌 head_hammer: "3"
+      // 定价 ipo_pricing: "17.5800"
+      // 配售结果 list: [["500", "177266", null, "0.2000", "177266名申请人中有35454名获发500股股份", "0", "9232.1100"],…]
+      // 每手股数 lot: "500"
+      // 股票名称 name: "联易融科技－Ｗ"
+      // 申购人数 num: "279784"
+      // 上限定价 price_ceiling: "18.2800"
+      // 下限定价 price_floor: "16.2800"
+      // ? rate: "20/1"
+      // 配售结果中文链接 rlink: "https://staticpdf.iqdii.com/stockdata/notice/09959/2021/9709263/2021040800103_c.pdf"
+      // 配售结果英文链接 slink: "https://staticpdf.iqdii.com/stockdata/notice/09959/2021/9709263/2021040800105_c.pdf"
+      // 认购倍数 subscribed: "98.4600"
+      // 一手价格 sz: "8790.0000"
+      // whiteForm: "https://staticpdf.iqdii.com/stockdata/notice/09959/2021/9709263/2021040800104_c.pdf"
+      // yellowForm: ""
+
+      // 22 px_close_rate 首日收盘涨幅
+      // 39 green_shoe 绿鞋机制
+      // 9 issue_date 上市时间
+      // 47 expiration_date 申购结束时间
+      // 8 create_at 开始申购时间
+
+
+
+      // 泡泡玛特有争议 估值太贵没有基石
+      // 联易融有争议,估值贵且打新情绪差连续破发很多新股
+      // 祖龙娱乐主要没额度,
+      // 思摩尔和欧康维视冲突
+      console.log(temp.map(ele => ele.name))
     });
 
     return {

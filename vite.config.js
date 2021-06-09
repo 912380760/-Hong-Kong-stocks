@@ -12,7 +12,13 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-      }
+      },
+      '/djapi': {
+        target: 'https://danjuanapp.com',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
     },
   },
   build: {

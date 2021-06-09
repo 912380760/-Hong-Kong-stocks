@@ -26,7 +26,26 @@
 // 配售数据
 import data from '../utils/CreateData';
 import { reactive, ref, watch } from "vue";
-console.log(data);
+
+
+// fetch("https://jybdata.iqdii.com/jybapp/IPOService/GetPlacingResult?v=0.7584351378209115&lang=chs", {
+//   "headers": {
+//     "accept": "*/*",
+//     "accept-language": "zh-CN,zh;q=0.9",
+//     "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+//     "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Google Chrome\";v=\"90\"",
+//     "sec-ch-ua-mobile": "?0",
+//     "sec-fetch-dest": "empty",
+//     "sec-fetch-mode": "cors",
+//     "sec-fetch-site": "cross-site"
+//   },
+//   "referrer": "https://www.aipo.org/",
+//   "referrerPolicy": "strict-origin-when-cross-origin",
+//   "body": "{\"code\":\"E06622\",\"count\":\"-1\"}",
+//   "method": "POST",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });
 
 export default {
   name: 'list',

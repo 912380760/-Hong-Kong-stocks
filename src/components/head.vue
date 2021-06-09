@@ -10,7 +10,7 @@
     <el-menu-item index="首页">首页</el-menu-item>
     <el-menu-item index="申购记录">申购记录</el-menu-item>
     <el-menu-item index="券商">券商</el-menu-item>
-    <el-menu-item index="文章">文章</el-menu-item>
+    <el-menu-item index="基金">基金</el-menu-item>
     <el-menu-item index="工具">工具</el-menu-item>
   </el-menu>
 </template>
@@ -38,8 +38,8 @@ export default {
         case '/qs':
           activeIndex.value = '券商';
           break;
-        case '文章':
-          activeIndex.value = '文章';
+        case '/jiJin':
+          activeIndex.value = '基金';
           break;
         case '工具':
           activeIndex.value = '工具';
@@ -63,8 +63,8 @@ export default {
         case '券商':
           router.push('/qs')
           break;
-        case '文章':
-          router.push('/')
+        case '基金':
+          router.push('/jiJin')
           break;
         case '工具':
           router.push('/')

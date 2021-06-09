@@ -18,6 +18,11 @@ const routes = [
     name: 'list',
     component: () => import("./views/list.vue"),
   },
+  {
+    path: '/jiJin',
+    name: 'jiJin',
+    component: () => import("./views/jiJin.vue"),
+  },
   // 配置404页面
   {
     path: "/:catchAll(.*)",

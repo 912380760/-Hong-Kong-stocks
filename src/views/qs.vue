@@ -13,6 +13,7 @@
       height="800"
       style="width: 100%;margin-top: 10px;">
     <el-table-column
+        width="120"
         prop="name"
         label="券商">
       <template #default="scope">
@@ -100,6 +101,8 @@
           label="综合交易佣金">
       </el-table-column>
       <el-table-column
+          sortable
+          width="120"
           prop="出金手续费"
           label="出金手续费">
       </el-table-column>

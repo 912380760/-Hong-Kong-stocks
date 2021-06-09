@@ -192,6 +192,8 @@ export async function 获取IPO数据(ipoHistory) {
     }
   });
   const ipoData = [...otherIpoData, ...ipoHistory];
+  // download('data.json', JSON.stringify(ipoData))
+  // console.log(JSON.stringify(ipoData))
   return ipoData
 }
 
@@ -275,24 +277,6 @@ export function 计算打新记录(recording, brokerList) {
 }
 
 /**
- * 自动下载数据
- * @param filename 文件名
- * @param text 文件内容
- */
-function download(filename, text) {
-  let element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + 'export default ' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-/**
  * 历史收益曲线 目前打新利润 = 中签后已经出售的股票,如果股票未出售不计算,因为利润并未确定,不包含打未公布的新股费用
  * @param 打新记录
  * @return {{收益日期: *[], 收益利润: *[]}}
@@ -357,7 +341,11 @@ export function 历史收益曲线计算(打新记录) {
   }
 }
 
-// 冒泡排序
+/**
+ * 根据日期冒泡排序
+ * @param arr
+ * @return {*}
+ */
 function bubbleSort (arr) {
   let max = arr.length - 1;
   for (let j = 0; j < max; j++) {
