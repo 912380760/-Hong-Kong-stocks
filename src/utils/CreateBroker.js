@@ -179,7 +179,7 @@ export async function 获取IPO数据(ipoHistory) {
     method: 'post',
     data: {
       page: 1,
-      size: 50,
+      size: 100,
       header: 1,
       paginate: 1,
     },

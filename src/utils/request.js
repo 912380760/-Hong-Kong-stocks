@@ -16,7 +16,7 @@ service.interceptors.request.use(
         // config.headers['Authorization'] = getToken()
         config.headers['accept'] = "application/x.fm.v1+json";
         config.headers['accept-language'] = "zh-CN,zh;q=0.9";
-        config.headers['content-type'] = "application/x-www-form-urlencoded; charset=UTF-8";
+        // config.headers['content-type'] = "application/x-www-form-urlencoded; charset=UTF-8";
         config.headers['x-requested-with'] = "XMLHttpRequest";
         return config
     },
